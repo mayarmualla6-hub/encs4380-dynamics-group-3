@@ -144,9 +144,73 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
   </div>
 </section>
 
-<section id="module2" class="panel">
-  <h2>Module 2: First-Order Frequency Response</h2>
-  <p class="hint">Under construction: amplitude ratio, phase lag and Bode plot.</p>
+<section id="module2">
+  <h2 class="section-title">Module 2: First-Order Frequency Response</h2>
+  <p class="description">
+    For a sine input the steady-state output is a sine of the same frequency, scaled by
+    <span class="eqline">M = 1/√(1 + (ωτ)²)</span> and delayed by a phase
+    <span class="eqline">φ = −tan⁻¹(ωτ)</span>. The dynamic error is <span class="eqline">δ = M − 1</span>.
+  </p>
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h3>Simulation Controls</h3>
+        <label for="tau2">Time constant (τ) <span class="value" id="tau2V"></span></label>
+        <input type="range" id="tau2" min="0.05" max="2" step="0.05" value="0.5">
+        <label for="w2">Input frequency (ω) <span class="value" id="w2V"></span></label>
+        <input type="range" id="w2" min="0.1" max="20" step="0.1" value="2">
+        <button id="loadEx" class="alt">Load slide example (τ = 0.2 s, ω = 2)</button>
+      </div>
+      <div class="panel">
+        <h3>Predict, then check</h3>
+        <p class="hint" id="q2Text"></p>
+        <div id="q2Opts"></div>
+        <button id="q2Check">Check my prediction</button>
+        <button id="q2Next" class="alt">Next question</button>
+        <div class="result" id="q2Res" aria-live="polite"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h3>Input and output sines</h3>
+        <p class="hint">Steady-state response, after the start-up transient has died out.</p>
+        <div class="chart-box"><canvas id="timeChart2" role="img" aria-label="Input and output sine waves"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Amplitude ratio and phase lag</h3>
+        <div class="metrics" id="metrics2"></div>
+      </div>
+      <div class="panel">
+        <h3>Bode plot</h3>
+        <p class="hint">At the cutoff ω = 1/τ the gain is 0.707 (−3 dB) and the phase is −45°. Above it the gain falls at −20 dB/decade.</p>
+        <div class="chart-box"><canvas id="magChart" role="img" aria-label="Bode magnitude plot"></canvas></div>
+        <div class="chart-box" style="margin-top:16px"><canvas id="phaseChart" role="img" aria-label="Bode phase plot"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Dynamic error calculator</h3>
+    <p class="hint">How slow can the sensor be? Require M ≥ 1 − ε up to the highest signal frequency: τ<sub>max</sub> = √(1/(1−ε)² − 1) / (2π f).</p>
+    <label for="fmax">Highest signal frequency f <span class="value" id="fmaxV"></span></label>
+    <input type="range" id="fmax" min="1" max="1000" step="1" value="100">
+    <label for="eps">Allowed dynamic error ε <span class="value" id="epsV"></span></label>
+    <input type="range" id="eps" min="1" max="20" step="1" value="5">
+    <label for="fchk">Check the phase lag at <span class="value" id="fchkV"></span></label>
+    <input type="range" id="fchk" min="1" max="1000" step="1" value="50">
+    <div class="result" id="calcOut" aria-live="polite"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Validation checks</h3>
+    <p class="hint">Slide examples computed with the same functions the plots use.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Check</th><th>Expected</th><th>Your value</th><th>Result</th></tr></thead>
+        <tbody id="validation2"></tbody>
+      </table>
+    </div>
+  </div>
 </section>
 
 <section id="module3" class="panel">
@@ -163,7 +227,7 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
 
 <footer>
   ENCS4380 | Interfacing Techniques | Birzeit University
-  <br>Dynamic Characteristics Interactive Toolkit | Group:Amal Khalifa - Miar Mala - Laila Awad - Hala Elyan
+  <br>Dynamic Characteristics Interactive Toolkit | Group: add group name here
 </footer>
 
 <script>
@@ -355,6 +419,162 @@ document.querySelectorAll("main section").forEach(s => io.observe(s));
 
 showQuestion();
 update();
+
+/* ================= Module 2: first-order frequency response ================= */
+const D2R = Math.PI / 180;
+const mag = (w, tau) => 1 / Math.sqrt(1 + (w * tau) ** 2);          // amplitude ratio M
+const phaseDeg = (w, tau) => -Math.atan(w * tau) / D2R;               // phase in degrees (negative = lag)
+const tauMax = (fHz, eps) => Math.sqrt(1 / ((1 - eps) ** 2) - 1) / (2 * Math.PI * fHz);
+
+const c2 = { tau: $("tau2"), w: $("w2"), fmax: $("fmax"), eps: $("eps"), fchk: $("fchk") };
+const logX = { type: "logarithmic", title: { display: true, text: "ω (rad/s)" }, grid };
+const common = { responsive: true, maintainAspectRatio: false, animation: false };
+
+const timeChart2 = new Chart($("timeChart2"), {
+  type: "line",
+  data: { datasets: [
+    { label: "Input sin(ωt)", borderColor: "#a0a9b8", borderDash: [6, 4], pointRadius: 0, borderWidth: 2, data: [] },
+    { label: "Output M·sin(ωt + φ)", borderColor: "#42c5c5", pointRadius: 0, borderWidth: 3, data: [] },
+    { label: "Delay", borderColor: "#f2b84b", backgroundColor: "#f2b84b", pointRadius: 5, borderWidth: 4, data: [] }
+  ]},
+  options: Object.assign({}, common, { scales: {
+    x: { type: "linear", title: { display: true, text: "Time (s)" }, grid },
+    y: { min: -1.2, max: 1.2, title: { display: true, text: "Amplitude" }, grid } } })
+});
+const magChart = new Chart($("magChart"), {
+  type: "line",
+  data: { datasets: [
+    { label: "|G(jω)| (dB)", borderColor: "#42c5c5", pointRadius: 0, borderWidth: 3, data: [] },
+    { label: "Asymptotes", borderColor: "#a0a9b8", borderDash: [6, 4], pointRadius: 0, borderWidth: 2, data: [] },
+    { label: "Cutoff ω = 1/τ (−3 dB)", borderColor: "#f2b84b", backgroundColor: "#f2b84b", pointRadius: 7, showLine: false, data: [] },
+    { label: "Your input ω", borderColor: "#e879a9", backgroundColor: "#e879a9", pointRadius: 7, showLine: false, data: [] }
+  ]},
+  options: Object.assign({}, common, { scales: { x: logX,
+    y: { min: -45, max: 5, title: { display: true, text: "Gain (dB)" }, grid } } })
+});
+const phaseChart = new Chart($("phaseChart"), {
+  type: "line",
+  data: { datasets: [
+    { label: "Phase φ (°)", borderColor: "#42c5c5", pointRadius: 0, borderWidth: 3, data: [] },
+    { label: "Cutoff ω = 1/τ (−45°)", borderColor: "#f2b84b", backgroundColor: "#f2b84b", pointRadius: 7, showLine: false, data: [] },
+    { label: "Your input ω", borderColor: "#e879a9", backgroundColor: "#e879a9", pointRadius: 7, showLine: false, data: [] }
+  ]},
+  options: Object.assign({}, common, { scales: { x: logX,
+    y: { min: -95, max: 5, title: { display: true, text: "Phase (degrees)" }, grid } } })
+});
+
+function setVals2(v) { for (const k in v) c2[k].value = v[k]; update2(); }
+
+function update2() {
+  const tau = +c2.tau.value, w = +c2.w.value;
+  const M = mag(w, tau), ph = phaseDeg(w, tau), dly = -ph * D2R / w, wc = 1 / tau;
+  $("tau2V").textContent = fmt(tau, 2) + " s";
+  $("w2V").textContent = fmt(w, 1) + " rad/s";
+
+  // time plot: three periods of input and output
+  const T = 2 * Math.PI / w, N = 400, xin = [], yout = [];
+  for (let i = 0; i <= N; i++) {
+    const t = 3 * T * i / N;
+    xin.push({ x: t, y: Math.sin(w * t) });
+    yout.push({ x: t, y: M * Math.sin(w * t + ph * D2R) });
+  }
+  const td = timeChart2.data.datasets;
+  td[0].data = xin; td[1].data = yout;
+  td[2].data = [{ x: 0, y: 0 }, { x: dly, y: 0 }];          // time delay between the two upward zero crossings
+  td[2].label = "Delay Δt = |φ|/ω = " + fmt(dly, 3) + " s";
+  timeChart2.update("none");
+
+  // Bode plots, log-spaced frequencies around the cutoff
+  const lo = Math.min(0.01 / tau, w / 3), hi = Math.max(100 / tau, 3 * w);
+  const dB = [], ps = [];
+  for (let i = 0; i <= 200; i++) {
+    const wi = lo * Math.pow(hi / lo, i / 200);
+    dB.push({ x: wi, y: 20 * Math.log10(mag(wi, tau)) });
+    ps.push({ x: wi, y: phaseDeg(wi, tau) });
+  }
+  const md = magChart.data.datasets;
+  md[0].data = dB;
+  md[1].data = [{ x: lo, y: 0 }, { x: wc, y: 0 }, { x: hi, y: -20 * Math.log10(hi * tau) }];
+  md[2].data = [{ x: wc, y: 20 * Math.log10(mag(wc, tau)) }];
+  md[3].data = [{ x: w, y: 20 * Math.log10(M) }];
+  magChart.options.scales.x.min = lo; magChart.options.scales.x.max = hi; magChart.update("none");
+  const pd = phaseChart.data.datasets;
+  pd[0].data = ps; pd[1].data = [{ x: wc, y: -45 }]; pd[2].data = [{ x: w, y: ph }];
+  phaseChart.options.scales.x.min = lo; phaseChart.options.scales.x.max = hi; phaseChart.update("none");
+
+  // readouts
+  const cards = [
+    ["Amplitude ratio M", fmt(M, 3), "output / input amplitude"],
+    ["Gain", fmt(20 * Math.log10(M), 2) + " dB", "20·log10(M)"],
+    ["Phase lag", fmt(-ph, 1) + "°", "φ = −tan⁻¹(ωτ)"],
+    ["Time delay", fmt(dly, 3) + " s", "|φ| / ω"],
+    ["Cutoff", fmt(wc, 2) + " rad/s", fmt(wc / (2 * Math.PI), 3) + " Hz, where ωτ = 1"],
+    ["Dynamic error δ = M − 1", fmt((M - 1) * 100, 1) + "%", "ωτ = " + fmt(w * tau, 2)]
+  ];
+  $("metrics2").innerHTML = cards.map(c =>
+    '<div class="metric"><small>' + c[0] + "</small><h2>" + c[1] + "</h2><small>" + c[2] + "</small></div>").join("");
+
+  // dynamic error calculator
+  const fm = +c2.fmax.value, ep = +c2.eps.value / 100, fc = +c2.fchk.value;
+  $("fmaxV").textContent = fm + " Hz"; $("epsV").textContent = fmt(ep * 100, 0) + "%"; $("fchkV").textContent = fc + " Hz";
+  const tm = tauMax(fm, ep);
+  const dAtMax = (mag(2 * Math.PI * fm, tm) - 1) * 100;
+  const lagChk = -phaseDeg(2 * Math.PI * fc, tm);
+  const dSlider = (mag(2 * Math.PI * fm, tau) - 1) * 100;
+  $("calcOut").innerHTML =
+    "Largest allowed τ: <b>" + fmt(tm * 1000, 3) + " ms</b> (check: δ at " + fm + " Hz = " + fmt(dAtMax, 2) + "%).<br>" +
+    "Phase lag at " + fc + " Hz with this τ: <b>" + fmt(lagChk, 1) + "°</b>.<br>" +
+    "Your slider sensor (τ = " + fmt(tau, 2) + " s) at " + fm + " Hz: δ = <b>" + fmt(dSlider, 1) + "%</b> → " +
+    (Math.abs(dSlider) <= ep * 100 ? '<span class="pass">within the limit</span>' : '<span class="fail">too slow for this signal</span>') + ".";
+
+  // validation (slide examples, computed)
+  const rows = [
+    ["2a. τ = 0.2 s, input sin 2t: amplitude ratio M", 0.93, mag(2, 0.2), 0.005, 3],
+    ["2b. same sensor: phase lag (°)", 21.8, -phaseDeg(2, 0.2), 0.05, 2],
+    ["3a. up to 100 Hz, ≤ 5% error: τmax (ms)", 0.52, tauMax(100, 0.05) * 1000, 0.01, 3],
+    ["3b. phase lag at 50 Hz with that τmax (°)", 9.3, -phaseDeg(2 * Math.PI * 50, tauMax(100, 0.05)), 0.05, 2]
+  ];
+  $("validation2").innerHTML = rows.map(r => {
+    const ok = Math.abs(r[1] - r[2]) <= r[3];
+    return "<tr><td>" + r[0] + "</td><td>" + fmt(r[1], r[4]) + "</td><td>" + fmt(r[2], r[4]) +
+      '</td><td class="' + (ok ? "pass" : "fail") + '">' + (ok ? "✓ PASS" : "✗ FAIL") + "</td></tr>";
+  }).join("");
+}
+Object.values(c2).forEach(el => ["input", "change"].forEach(ev => el.addEventListener(ev, update2)));
+$("loadEx").addEventListener("click", () => setVals2({ tau: 0.2, w: 2 }));
+
+// small reusable "Predict, then check" quiz
+function initQuiz(p, QS) {
+  let i = 0;
+  const show = () => {
+    $(p + "Text").textContent = "Question " + (i + 1) + " of " + QS.length + ": " + QS[i].q;
+    $(p + "Opts").innerHTML = QS[i].opts.map((o, k) =>
+      '<label class="opt" style="margin:8px 0"><input type="radio" name="pick' + p + '" value="' + k + '"> ' + o + "</label>").join("");
+    $(p + "Res").textContent = "";
+  };
+  $(p + "Check").addEventListener("click", () => {
+    const sel = document.querySelector('input[name="pick' + p + '"]:checked');
+    if (!sel) { $(p + "Res").textContent = "Choose a prediction first, then check."; return; }
+    $(p + "Res").textContent = (+sel.value === QS[i].ans ? "Correct! " : "Not quite. ") + QS[i].run();
+  });
+  $(p + "Next").addEventListener("click", () => { i = (i + 1) % QS.length; show(); });
+  show();
+}
+initQuiz("q2", [
+  { q: "A sensor with τ = 0.5 s gets a sine at ω = 2 rad/s, exactly 1/τ. The amplitude ratio will be about…",
+    opts: ["1.0 (no attenuation)", "0.707", "0.5"], ans: 1,
+    run() { setVals2({ tau: 0.5, w: 2 });
+      return "ωτ = 1, so M = 1/√2 = 0.707 (−3 dB) and the phase is −45°. That is the cutoff frequency."; } },
+  { q: "With τ = 0.5 s, the input frequency doubles from ω = 1 to ω = 2 rad/s. The phase lag will…",
+    opts: ["stay the same", "double exactly", "grow, but by less than double"], ans: 2,
+    run() { setVals2({ tau: 0.5, w: 1 }); const a = -phaseDeg(1, 0.5); setVals2({ w: 2 });
+      return "The lag went from " + fmt(a, 1) + "° to " + fmt(-phaseDeg(2, 0.5), 1) + "°. tan⁻¹ grows more slowly than its argument, and it never passes 90°."; } },
+  { q: "A sensor is used far below its cutoff, with ωτ = 0.1 (τ = 0.5 s, ω = 0.2 rad/s). The dynamic error δ = M − 1 is about…",
+    opts: ["−0.5%", "−5%", "−30%"], ans: 0,
+    run() { setVals2({ tau: 0.5, w: 0.2 });
+      return "M = 1/√(1 + 0.01) = " + fmt(mag(0.2, 0.5), 3) + ", so δ = " + fmt((mag(0.2, 0.5) - 1) * 100, 2) + "%. Well below the cutoff the sensor is almost perfect."; } }
+]);
+update2();
 </script>
 </body>
 </html>
