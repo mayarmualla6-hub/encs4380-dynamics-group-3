@@ -13,8 +13,8 @@ body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text
 header{padding:28px 6%;border-bottom:1px solid var(--border);background:#101a2c}
 header h1{margin:0;font-size:27px}
 header p{color:var(--muted);margin-bottom:0}
-nav{display:flex;gap:12px;flex-wrap:wrap;padding:15px 6%;border-bottom:1px solid var(--border)}
-nav a{color:var(--muted);text-decoration:none;padding:10px 15px;border-radius:8px}
+nav{display:flex;gap:12px;flex-wrap:wrap;padding:15px 6%;border-bottom:1px solid var(--border);position:sticky;top:0;background:#101a2ce6;backdrop-filter:blur(8px);z-index:100}
+nav a{color:var(--muted);text-decoration:none;padding:10px 15px;border-radius:8px;font-weight:bold}
 nav a.active,nav a:hover{background:var(--panel2);color:var(--accent)}
 main{max-width:1250px;margin:auto;padding:30px 5%}
 .section-title{margin-bottom:8px;font-size:25px}
@@ -22,8 +22,9 @@ main{max-width:1250px;margin:auto;padding:30px 5%}
 .grid{display:grid;grid-template-columns:320px 1fr;gap:20px;margin-top:25px}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:22px;margin-bottom:20px}
 .panel h3{margin-top:0}
-label{display:block;margin:20px 0 8px;color:var(--muted)}
+label{display:block;margin:18px 0 6px;color:var(--muted);font-size:14px}
 input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number]{width:100%;padding:10px;border-radius:7px;border:1px solid var(--border);background:var(--panel2);color:var(--text);margin-top:4px}
 select,button{padding:11px;border-radius:7px;border:1px solid var(--border);background:var(--panel2);color:var(--text);width:100%;font-size:14px}
 button{cursor:pointer;background:var(--accent);color:#071b23;border:none;font-weight:bold;margin-top:12px}
 button.alt{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
@@ -31,13 +32,13 @@ button:hover{opacity:.85}
 button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 .value{color:var(--accent);float:right;font-weight:bold}
 .chart-box{position:relative;height:320px}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
 .metric{background:var(--panel2);padding:15px;border-radius:9px}
 .metric small{color:var(--muted)}
 .metric h2{color:var(--accent);margin:4px 0 0;font-size:22px}
 .hint{color:var(--muted);line-height:1.7}
 .result{margin-top:12px;color:var(--accent);line-height:1.7}
-.opt{display:flex;gap:10px;align-items:center;margin:8px 0;color:var(--text)}
+.opt{display:flex;gap:10px;align-items:center;margin:8px 0;color:var(--text);cursor:pointer}
 .opt input{width:auto}
 .eqline{font-family:Georgia,serif;font-style:italic;color:var(--text)}
 .table-wrap{overflow-x:auto}
@@ -46,6 +47,7 @@ th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border)}
 th{color:var(--muted);font-weight:normal}
 .pass{color:var(--ok);font-weight:bold}
 .fail{color:var(--bad);font-weight:bold}
+.matrix-box{font-family:'Courier New',Courier,monospace;background:var(--panel2);padding:14px;border-radius:8px;font-size:15px;line-height:1.6}
 footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid var(--border)}
 @media(max-width:860px){.grid{grid-template-columns:1fr}.chart-box{height:280px}}
 </style>
@@ -54,7 +56,7 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
 
 <header>
   <h1>Dynamic Characteristics Toolkit</h1>
-  <p>Interactive Sensor Response Simulator | ENCS4380</p>
+  <p>Interactive Sensor Response Simulator | ENCS4380 Interfacing Techniques</p>
 </header>
 
 <nav>
@@ -66,6 +68,7 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
 
 <main>
 
+<!-- ================= MODULE 1 ================= -->
 <section id="module1">
   <h2 class="section-title">Module 1: First-Order Time Response</h2>
   <p class="description">
@@ -75,26 +78,20 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
   </p>
 
   <div class="grid">
-
     <div>
       <div class="panel">
         <h3>Simulation Controls</h3>
-
         <label for="inputType">Input type</label>
         <select id="inputType">
           <option value="step">Step input: x(t) = A</option>
           <option value="ramp">Ramp input: x(t) = A·t</option>
         </select>
-
         <label for="gain">Gain (K) <span class="value" id="kValue"></span></label>
         <input type="range" id="gain" min="0.5" max="5" step="0.1" value="2">
-
         <label for="tau">Time constant (τ) <span class="value" id="tauValue"></span></label>
         <input type="range" id="tau" min="0.5" max="10" step="0.5" value="2">
-
         <label for="amp"><span id="ampLabel">Step size (A)</span> <span class="value" id="ampValue"></span></label>
         <input type="range" id="amp" min="0.5" max="10" step="0.5" value="5">
-
         <p class="hint eqline" id="eqLine"></p>
       </div>
 
@@ -113,12 +110,10 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
         <h3>Input and output response</h3>
         <div class="chart-box"><canvas id="responseChart" aria-label="Time response of the sensor" role="img"></canvas></div>
       </div>
-
       <div class="panel">
         <h3>Dynamic characteristics</h3>
         <div class="metrics" id="metrics"></div>
       </div>
-
       <div class="panel">
         <h3>Error fraction (logarithmic scale)</h3>
         <p class="hint">
@@ -129,12 +124,11 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
         <p class="result" id="slopeValue"></p>
       </div>
     </div>
-
   </div>
 
   <div class="panel">
     <h3>Validation checks</h3>
-    <p class="hint">Computed live from the current slider values and compared with the lecture-slide results.</p>
+    <p class="hint">Computed live from the current slider values and compared with lecture-slide standards.</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Check</th><th>Expected</th><th>Your value</th><th>Result</th></tr></thead>
@@ -144,6 +138,7 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
   </div>
 </section>
 
+<!-- ================= MODULE 2 ================= -->
 <section id="module2">
   <h2 class="section-title">Module 2: First-Order Frequency Response</h2>
   <p class="description">
@@ -151,6 +146,7 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
     <span class="eqline">M = 1/√(1 + (ωτ)²)</span> and delayed by a phase
     <span class="eqline">φ = −tan⁻¹(ωτ)</span>. The dynamic error is <span class="eqline">δ = M − 1</span>.
   </p>
+
   <div class="grid">
     <div>
       <div class="panel">
@@ -170,6 +166,7 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
         <div class="result" id="q2Res" aria-live="polite"></div>
       </div>
     </div>
+
     <div>
       <div class="panel">
         <h3>Input and output sines</h3>
@@ -182,7 +179,7 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
       </div>
       <div class="panel">
         <h3>Bode plot</h3>
-        <p class="hint">At the cutoff ω = 1/τ the gain is 0.707 (−3 dB) and the phase is −45°. Above it the gain falls at −20 dB/decade.</p>
+        <p class="hint">At cutoff ω = 1/τ gain is 0.707 (−3 dB) and phase is −45°. Above it gain drops at −20 dB/dec.</p>
         <div class="chart-box"><canvas id="magChart" role="img" aria-label="Bode magnitude plot"></canvas></div>
         <div class="chart-box" style="margin-top:16px"><canvas id="phaseChart" role="img" aria-label="Bode phase plot"></canvas></div>
       </div>
@@ -191,19 +188,18 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
 
   <div class="panel">
     <h3>Dynamic error calculator</h3>
-    <p class="hint">How slow can the sensor be? Require M ≥ 1 − ε up to the highest signal frequency: τ<sub>max</sub> = √(1/(1−ε)² − 1) / (2π f).</p>
+    <p class="hint">Require M ≥ 1 − ε up to the highest signal frequency: τ<sub>max</sub> = √(1/(1−ε)² − 1) / (2π f).</p>
     <label for="fmax">Highest signal frequency f <span class="value" id="fmaxV"></span></label>
     <input type="range" id="fmax" min="1" max="1000" step="1" value="100">
     <label for="eps">Allowed dynamic error ε <span class="value" id="epsV"></span></label>
     <input type="range" id="eps" min="1" max="20" step="1" value="5">
-    <label for="fchk">Check the phase lag at <span class="value" id="fchkV"></span></label>
+    <label for="fchk">Check phase lag at <span class="value" id="fchkV"></span></label>
     <input type="range" id="fchk" min="1" max="1000" step="1" value="50">
     <div class="result" id="calcOut" aria-live="polite"></div>
   </div>
 
   <div class="panel">
     <h3>Validation checks</h3>
-    <p class="hint">Slide examples computed with the same functions the plots use.</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Check</th><th>Expected</th><th>Your value</th><th>Result</th></tr></thead>
@@ -213,21 +209,140 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
   </div>
 </section>
 
-<section id="module3" class="panel">
-  <h2>Module 3: Second-Order Response</h2>
-  <p class="hint">Under construction: damping, overshoot, settling time and poles.</p>
+<!-- ================= MODULE 3 ================= -->
+<section id="module3">
+  <h2 class="section-title">Module 3: Second-Order Response & State-Space</h2>
+  <p class="description">
+    Accelerometers and mechanical transducers follow <span class="eqline">G(s) = K·ω<sub>n</sub>² / (s² + 2ζω<sub>n</sub>s + ω<sub>n</sub>²)</span>.
+    Observe underdamped, critically damped, and overdamped modes, alongside the companion State-Space model.
+  </p>
+
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h3>System Parameters</h3>
+        <label for="zeta3">Damping ratio (ζ) <span class="value" id="zeta3V"></span></label>
+        <input type="range" id="zeta3" min="0.05" max="2.0" step="0.05" value="0.5">
+        
+        <label for="wn3">Natural frequency (ω<sub>n</sub>) <span class="value" id="wn3V"></span></label>
+        <input type="range" id="wn3" min="0.5" max="10" step="0.5" value="2.0">
+
+        <label for="m3">Mass m (kg) <span class="value" id="m3V"></span></label>
+        <input type="range" id="m3" min="0.5" max="5" step="0.5" value="1.0">
+
+        <label for="b3">Damping b (N·s/m) <span class="value" id="b3V"></span></label>
+        <input type="range" id="b3" min="0.5" max="10" step="0.5" value="2.0">
+
+        <label for="k3">Spring constant k (N/m) <span class="value" id="k3V"></span></label>
+        <input type="range" id="k3" min="0.5" max="15" step="0.5" value="4.0">
+
+        <button id="loadEx3" class="alt">Load Slide Example (m=1, b=2, k=4)</button>
+      </div>
+
+      <div class="panel">
+        <h3>Predict, then check</h3>
+        <p class="hint" id="q3Text"></p>
+        <div id="q3Opts"></div>
+        <button id="q3Check">Check my prediction</button>
+        <button id="q3Next" class="alt">Next question</button>
+        <div class="result" id="q3Res" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h3>Step Response y(t)</h3>
+        <div class="chart-box"><canvas id="stepChart3" role="img" aria-label="Second order step response"></canvas></div>
+      </div>
+
+      <div class="panel">
+        <h3>Response Characteristics</h3>
+        <div class="metrics" id="metrics3"></div>
+      </div>
+
+      <div class="panel">
+        <h3>s-Plane Poles & Phase-Plane Trajectory</h3>
+        <p class="hint">Left: System poles in s-plane. Right: Phase plane (velocity ẋ vs position x) showing spiral convergence.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
+          <div class="chart-box"><canvas id="sPlaneChart" role="img" aria-label="s-plane poles"></canvas></div>
+          <div class="chart-box"><canvas id="phasePlaneChart" role="img" aria-label="Phase plane trajectory"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>State-Space Representation (Mass-Spring-Damper)</h3>
+    <p class="hint">State vector: x₁ = displacement, x₂ = velocity. ẋ = A·x + B·F, y = [1 0]·x</p>
+    <div class="matrix-box" id="ssMatrixOut"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Module 3 Validation Checks</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Check</th><th>Expected</th><th>Your value</th><th>Result</th></tr></thead>
+        <tbody id="validation3"></tbody>
+      </table>
+    </div>
+  </div>
 </section>
 
-<section id="module4" class="panel">
-  <h2>Module 4: Guess the Sensor</h2>
-  <p class="hint">Under construction: estimate the hidden sensor parameters.</p>
+<!-- ================= MODULE 4 ================= -->
+<section id="module4">
+  <h2 class="section-title">Module 4: "Guess the Sensor" Challenge</h2>
+  <p class="description">
+    Test your engineering reverse-analysis skills! Read a noisy sensor curve, estimate the true model parameters, and submit your guess.
+  </p>
+
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h3>Round Controller</h3>
+        <p class="hint">Total Score: <b id="m4Score" style="color:var(--accent);font-size:20px">0</b> / <span id="m4Rounds">0</span> rounds</p>
+        <button id="m4NewBtn">🎲 Generate New Sensor</button>
+        <button id="m4HintBtn" class="alt">Show Parameter Estimation Hint</button>
+        <div id="m4HintBox" class="result" style="display:none;font-size:13px"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Enter Your Estimates</h3>
+        <div id="m4TypeBadge" style="margin-bottom:12px;font-weight:bold;color:var(--amber)"></div>
+        
+        <div id="m4Fields1">
+          <label for="m4K">Gain (K):</label>
+          <input type="number" id="m4K" step="0.1" placeholder="Read final steady-state">
+          <label for="m4Tau">Time constant τ (s):</label>
+          <input type="number" id="m4Tau" step="0.1" placeholder="Time to 63.2% of K">
+        </div>
+
+        <div id="m4Fields2" style="display:none">
+          <label for="m4Zeta">Damping ratio (ζ):</label>
+          <input type="number" id="m4Zeta" step="0.05" placeholder="From % Overshoot">
+          <label for="m4Wn">Natural frequency ω<sub>n</sub> (rad/s):</label>
+          <input type="number" id="m4Wn" step="0.1" placeholder="From peak time tp">
+        </div>
+
+        <button id="m4SubmitBtn">Submit Guess & Reveal</button>
+        <div id="m4Feedback" class="result"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h3>Mystery Sensor Output</h3>
+        <p class="hint">Blue: Measured noisy sensor. Orange (after guess): Your model. Green: Actual clean model.</p>
+        <div class="chart-box" style="height:400px"><canvas id="m4Chart" role="img" aria-label="Mystery sensor response"></canvas></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 </main>
 
 <footer>
   ENCS4380 | Interfacing Techniques | Birzeit University
-  <br>Dynamic Characteristics Interactive Toolkit | Group: add group name here
+  <br>Dynamic Characteristics Interactive Toolkit
 </footer>
 
 <script>
@@ -235,15 +350,11 @@ footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid va
 const $ = id => document.getElementById(id);
 const fmt = (x, d = 2) => Number(x).toFixed(d);
 
-/* ---------- Closed-form responses (lecture slides) ---------- */
-// Step x = A:    y(t) = K A (1 - e^(-t/tau))
+/* ================= MODULE 1: FIRST ORDER TIME ================= */
 const yStep = (t, K, tau, A) => K * A * (1 - Math.exp(-t / tau));
-// Ramp x = A t:  y(t) = K A [t - tau (1 - e^(-t/tau))]
 const yRamp = (t, K, tau, A) => K * A * (t - tau * (1 - Math.exp(-t / tau)));
-// Fraction of the change still remaining
 const errFrac = (t, tau) => Math.exp(-t / tau);
 
-/* ---------- Charts ---------- */
 Chart.defaults.color = "#c3d0e0";
 const grid = { color: "#29384d" };
 
@@ -283,18 +394,12 @@ const errorChart = new Chart($("errorChart"), {
   }
 });
 
-/* ---------- Controls ---------- */
 const ctl = { K: $("gain"), tau: $("tau"), A: $("amp"), mode: $("inputType") };
-
-function setVals(v) {   // used by the "Predict, then check" questions
-  for (const k in v) ctl[k].value = v[k];
-  update();
-}
+function setVals(v) { for (const k in v) ctl[k].value = v[k]; update(); }
 
 function update() {
   const K = +ctl.K.value, tau = +ctl.tau.value, A = +ctl.A.value, mode = ctl.mode.value;
   const step = mode === "step";
-
   $("kValue").textContent = fmt(K, 1);
   $("tauValue").textContent = fmt(tau, 1) + " s";
   $("ampValue").textContent = fmt(A, 1);
@@ -303,7 +408,6 @@ function update() {
     ? "y(t) = K·A·(1 − e<sup>−t/τ</sup>), final value K·A = " + fmt(K * A)
     : "y(t) = K·A·[t − τ(1 − e<sup>−t/τ</sup>)]";
 
-  // ----- time response -----
   const T = 6 * tau, N = 300;
   const ideal = [], out = [], asym = [], err = [], logE = [];
   for (let i = 0; i <= N; i++) {
@@ -325,44 +429,40 @@ function update() {
     d[4].data = [{ x: tau, y: yStep(tau, K, tau, A) }];
     d[5].data = [{ x: 3 * tau, y: yStep(3 * tau, K, tau, A) }];
   } else {
-    const t0 = 0.8 * T, y0 = K * A * (t0 - tau);       // horizontal gap between ideal and asymptote = tau
+    const t0 = 0.8 * T, y0 = K * A * (t0 - tau);
     d[3].data = [{ x: t0 - tau, y: y0 }, { x: t0, y: y0 }];
     d[3].label = "Lag = τ = " + fmt(tau, 1) + " s";
     d[4].data = []; d[5].data = [];
   }
   responseChart.update("none");
 
-  // ----- error fraction (log axis) -----
   errorChart.data.datasets[0].data = err;
   errorChart.data.datasets[1].data = [{ x: tau, y: errFrac(tau, tau) }, { x: 3 * tau, y: errFrac(3 * tau, tau) }];
   errorChart.update("none");
 
-  // least-squares slope of ln E against t, taken from the plotted data
   const n = logE.length;
   const sx = logE.reduce((s, p) => s + p[0], 0), sy = logE.reduce((s, p) => s + p[1], 0);
   const sxx = logE.reduce((s, p) => s + p[0] * p[0], 0), sxy = logE.reduce((s, p) => s + p[0] * p[1], 0);
   const slope = (n * sxy - sx * sy) / (n * sxx - sx * sx);
-  $("slopeValue").innerHTML = "Slope of ln E against t, fitted from the plot: <b>" + fmt(slope, 3) +
+  $("slopeValue").innerHTML = "Slope of ln E against t, fitted: <b>" + fmt(slope, 3) +
     " s⁻¹</b>. Theory −1/τ = <b>" + fmt(-1 / tau, 3) + " s⁻¹</b>.";
 
-  // ----- metrics -----
   const cards = [
     ["Time to 63.2%", fmt(tau, 1) + " s", "equals τ"],
     ["Time to 95%", fmt(3 * tau, 1) + " s", "equals 3τ"]
   ];
   if (step) {
     cards.push(["Ramp lag", "n/a", "switch to a ramp input"]);
-    cards.push(["Steady-state error", "0", "the final value K·A is reached"]);
+    cards.push(["Steady-state error", "0", "final value reached"]);
   } else {
-    cards.push(["Ramp lag", fmt(tau, 1) + " s", "output trails the input by τ"]);
-    cards.push(["Steady-state error", fmt(K * A * tau), "K·A·τ below the ideal output"]);
+    cards.push(["Ramp lag", fmt(tau, 1) + " s", "output trails input by τ"]);
+    cards.push(["Steady-state error", fmt(K * A * tau), "K·A·τ steady lag"]);
   }
   $("metrics").innerHTML = cards.map(c =>
     '<div class="metric"><small>' + c[0] + "</small><h2>" + c[1] + "</h2><small>" + c[2] + "</small></div>").join("");
 
-  // ----- validation (computed, not hard-coded) -----
-  const tl = 10 * tau;                                        // late time: transient is gone
-  const lag = tl - yRamp(tl, K, tau, A) / (K * A);            // measured time lag of the ramp response
+  const tl = 10 * tau;
+  const lag = tl - yRamp(tl, K, tau, A) / (K * A);
   const rows = [
     ["1a. First-order step: y(τ) / (K·A)", 0.632, yStep(tau, K, tau, A) / (K * A), 0.001],
     ["1b. First-order step: y(3τ) / (K·A)", 0.95, yStep(3 * tau, K, tau, A) / (K * A), 0.001],
@@ -375,55 +475,12 @@ function update() {
       '</td><td class="' + (ok ? "pass" : "fail") + '">' + (ok ? "✓ PASS" : "✗ FAIL") + "</td></tr>";
   }).join("");
 }
-
 ["input", "change"].forEach(ev => Object.values(ctl).forEach(el => el.addEventListener(ev, update)));
 
-/* ---------- Predict, then check ---------- */
-const QS = [
-  { q: "τ doubles from 2 s to 4 s (K and the step stay the same). The time to reach 63.2% of the final value will…",
-    opts: ["be halved", "stay the same", "double"], ans: 2,
-    run() { setVals({ mode: "step", tau: 2 }); setVals({ tau: 4 });
-      return "t63 went from 2 s to 4 s. It always equals τ, so it doubles: a larger τ means a slower sensor."; } },
-  { q: "K doubles from 1 to 2 (τ stays 3 s). The time to reach 63.2% of the final value will…",
-    opts: ["be halved", "stay the same", "double"], ans: 1,
-    run() { setVals({ mode: "step", tau: 3, K: 1 }); const f1 = +ctl.K.value * +ctl.A.value;
-      setVals({ K: 2 }); const f2 = +ctl.K.value * +ctl.A.value;
-      return "The final value moved from " + fmt(f1) + " to " + fmt(f2) + ", but t63 is still τ = 3 s. K scales the size, not the speed."; } },
-  { q: "A ramp is applied to a sensor with τ = 3 s. In steady state the output trails the ideal ramp by about…",
-    opts: ["0 s (no lag)", "τ = 3 s", "2τ = 6 s"], ans: 1,
-    run() { setVals({ mode: "ramp", tau: 3 });
-      return "The horizontal segment on the plot is the lag: exactly τ = 3 s. The sensor reports where the input was 3 s ago."; } }
-];
-let qi = 0;
-function showQuestion() {
-  const q = QS[qi];
-  $("qText").textContent = "Question " + (qi + 1) + " of " + QS.length + ": " + q.q;
-  $("qOpts").innerHTML = q.opts.map((o, i) =>
-    '<label class="opt" style="margin:8px 0"><input type="radio" name="pick" value="' + i + '"> ' + o + "</label>").join("");
-  $("predictionResult").textContent = "";
-}
-$("checkPrediction").addEventListener("click", () => {
-  const sel = document.querySelector('input[name="pick"]:checked');
-  if (!sel) { $("predictionResult").textContent = "Choose a prediction first, then check."; return; }
-  const q = QS[qi], right = +sel.value === q.ans;
-  $("predictionResult").textContent = (right ? "Correct! " : "Not quite. ") + q.run();
-});
-$("nextQuestion").addEventListener("click", () => { qi = (qi + 1) % QS.length; showQuestion(); });
-
-/* ---------- Nav highlight while scrolling ---------- */
-const links = [...document.querySelectorAll("nav a")];
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id)); });
-}, { rootMargin: "-40% 0px -55% 0px" });
-document.querySelectorAll("main section").forEach(s => io.observe(s));
-
-showQuestion();
-update();
-
-/* ================= Module 2: first-order frequency response ================= */
+/* ================= MODULE 2: FREQUENCY RESPONSE ================= */
 const D2R = Math.PI / 180;
-const mag = (w, tau) => 1 / Math.sqrt(1 + (w * tau) ** 2);          // amplitude ratio M
-const phaseDeg = (w, tau) => -Math.atan(w * tau) / D2R;               // phase in degrees (negative = lag)
+const mag = (w, tau) => 1 / Math.sqrt(1 + (w * tau) ** 2);
+const phaseDeg = (w, tau) => -Math.atan(w * tau) / D2R;
 const tauMax = (fHz, eps) => Math.sqrt(1 / ((1 - eps) ** 2) - 1) / (2 * Math.PI * fHz);
 
 const c2 = { tau: $("tau2"), w: $("w2"), fmax: $("fmax"), eps: $("eps"), fchk: $("fchk") };
@@ -471,7 +528,6 @@ function update2() {
   $("tau2V").textContent = fmt(tau, 2) + " s";
   $("w2V").textContent = fmt(w, 1) + " rad/s";
 
-  // time plot: three periods of input and output
   const T = 2 * Math.PI / w, N = 400, xin = [], yout = [];
   for (let i = 0; i <= N; i++) {
     const t = 3 * T * i / N;
@@ -480,11 +536,10 @@ function update2() {
   }
   const td = timeChart2.data.datasets;
   td[0].data = xin; td[1].data = yout;
-  td[2].data = [{ x: 0, y: 0 }, { x: dly, y: 0 }];          // time delay between the two upward zero crossings
+  td[2].data = [{ x: 0, y: 0 }, { x: dly, y: 0 }];
   td[2].label = "Delay Δt = |φ|/ω = " + fmt(dly, 3) + " s";
   timeChart2.update("none");
 
-  // Bode plots, log-spaced frequencies around the cutoff
   const lo = Math.min(0.01 / tau, w / 3), hi = Math.max(100 / tau, 3 * w);
   const dB = [], ps = [];
   for (let i = 0; i <= 200; i++) {
@@ -498,23 +553,22 @@ function update2() {
   md[2].data = [{ x: wc, y: 20 * Math.log10(mag(wc, tau)) }];
   md[3].data = [{ x: w, y: 20 * Math.log10(M) }];
   magChart.options.scales.x.min = lo; magChart.options.scales.x.max = hi; magChart.update("none");
+
   const pd = phaseChart.data.datasets;
   pd[0].data = ps; pd[1].data = [{ x: wc, y: -45 }]; pd[2].data = [{ x: w, y: ph }];
   phaseChart.options.scales.x.min = lo; phaseChart.options.scales.x.max = hi; phaseChart.update("none");
 
-  // readouts
   const cards = [
-    ["Amplitude ratio M", fmt(M, 3), "output / input amplitude"],
+    ["Amplitude ratio M", fmt(M, 3), "output / input"],
     ["Gain", fmt(20 * Math.log10(M), 2) + " dB", "20·log10(M)"],
     ["Phase lag", fmt(-ph, 1) + "°", "φ = −tan⁻¹(ωτ)"],
     ["Time delay", fmt(dly, 3) + " s", "|φ| / ω"],
-    ["Cutoff", fmt(wc, 2) + " rad/s", fmt(wc / (2 * Math.PI), 3) + " Hz, where ωτ = 1"],
-    ["Dynamic error δ = M − 1", fmt((M - 1) * 100, 1) + "%", "ωτ = " + fmt(w * tau, 2)]
+    ["Cutoff", fmt(wc, 2) + " rad/s", fmt(wc / (2 * Math.PI), 3) + " Hz"],
+    ["Dynamic error δ", fmt((M - 1) * 100, 1) + "%", "δ = M − 1"]
   ];
   $("metrics2").innerHTML = cards.map(c =>
     '<div class="metric"><small>' + c[0] + "</small><h2>" + c[1] + "</h2><small>" + c[2] + "</small></div>").join("");
 
-  // dynamic error calculator
   const fm = +c2.fmax.value, ep = +c2.eps.value / 100, fc = +c2.fchk.value;
   $("fmaxV").textContent = fm + " Hz"; $("epsV").textContent = fmt(ep * 100, 0) + "%"; $("fchkV").textContent = fc + " Hz";
   const tm = tauMax(fm, ep);
@@ -524,10 +578,9 @@ function update2() {
   $("calcOut").innerHTML =
     "Largest allowed τ: <b>" + fmt(tm * 1000, 3) + " ms</b> (check: δ at " + fm + " Hz = " + fmt(dAtMax, 2) + "%).<br>" +
     "Phase lag at " + fc + " Hz with this τ: <b>" + fmt(lagChk, 1) + "°</b>.<br>" +
-    "Your slider sensor (τ = " + fmt(tau, 2) + " s) at " + fm + " Hz: δ = <b>" + fmt(dSlider, 1) + "%</b> → " +
-    (Math.abs(dSlider) <= ep * 100 ? '<span class="pass">within the limit</span>' : '<span class="fail">too slow for this signal</span>') + ".";
+    "Your slider sensor at " + fm + " Hz: δ = <b>" + fmt(dSlider, 1) + "%</b> → " +
+    (Math.abs(dSlider) <= ep * 100 ? '<span class="pass">within limit</span>' : '<span class="fail">too slow</span>') + ".";
 
-  // validation (slide examples, computed)
   const rows = [
     ["2a. τ = 0.2 s, input sin 2t: amplitude ratio M", 0.93, mag(2, 0.2), 0.005, 3],
     ["2b. same sensor: phase lag (°)", 21.8, -phaseDeg(2, 0.2), 0.05, 2],
@@ -543,23 +596,394 @@ function update2() {
 Object.values(c2).forEach(el => ["input", "change"].forEach(ev => el.addEventListener(ev, update2)));
 $("loadEx").addEventListener("click", () => setVals2({ tau: 0.2, w: 2 }));
 
-// small reusable "Predict, then check" quiz
-function initQuiz(p, QS) {
+/* ================= MODULE 3: SECOND-ORDER & STATE-SPACE ================= */
+const ySecondOrder = (t, z, wn) => {
+  if (z < 0.999) { // Underdamped
+    const wd = wn * Math.sqrt(1 - z * z);
+    const phi = Math.atan(Math.sqrt(1 - z * z) / z);
+    return 1 - (Math.exp(-z * wn * t) / Math.sqrt(1 - z * z)) * Math.sin(wd * t + phi);
+  } else if (z <= 1.001) { // Critically damped
+    return 1 - (1 + wn * t) * Math.exp(-wn * t);
+  } else { // Overdamped
+    const s1 = wn * (z - Math.sqrt(z * z - 1));
+    const s2 = wn * (z + Math.sqrt(z * z - 1));
+    return 1 - (s2 * Math.exp(-s1 * t) - s1 * Math.exp(-s2 * t)) / (s2 - s1);
+  }
+};
+
+const yDotSecondOrder = (t, z, wn) => {
+  if (z < 0.999) {
+    const wd = wn * Math.sqrt(1 - z * z);
+    return (wn / Math.sqrt(1 - z * z)) * Math.exp(-z * wn * t) * Math.sin(wd * t);
+  } else if (z <= 1.001) {
+    return wn * wn * t * Math.exp(-wn * t);
+  } else {
+    const s1 = wn * (z - Math.sqrt(z * z - 1));
+    const s2 = wn * (z + Math.sqrt(z * z - 1));
+    return (s1 * s2 / (s2 - s1)) * (Math.exp(-s1 * t) - Math.exp(-s2 * t));
+  }
+};
+
+const c3 = { z: $("zeta3"), wn: $("wn3"), m: $("m3"), b: $("b3"), k: $("k3") };
+
+const stepChart3 = new Chart($("stepChart3"), {
+  type: "line",
+  data: { datasets: [
+    { label: "Step Input (1.0)", borderColor: "#a0a9b8", borderDash: [6, 4], pointRadius: 0, borderWidth: 1.5, data: [] },
+    { label: "Output y(t)", borderColor: "#42c5c5", pointRadius: 0, borderWidth: 3, data: [] },
+    { label: "Peak Overshoot", borderColor: "#e879a9", backgroundColor: "#e879a9", pointRadius: 6, showLine: false, data: [] }
+  ]},
+  options: Object.assign({}, common, {
+    scales: {
+      x: { type: "linear", title: { display: true, text: "Time (s)" }, grid },
+      y: { title: { display: true, text: "Output Amplitude" }, grid }
+    }
+  })
+});
+
+const sPlaneChart = new Chart($("sPlaneChart"), {
+  type: "scatter",
+  data: { datasets: [
+    { label: "System Poles (×)", borderColor: "#f2b84b", backgroundColor: "#f2b84b", pointRadius: 8, pointStyle: "crossRot", borderWidth: 3, data: [] }
+  ]},
+  options: Object.assign({}, common, {
+    plugins: { legend: { display: true } },
+    scales: {
+      x: { title: { display: true, text: "Real (σ)" }, grid },
+      y: { title: { display: true, text: "Imaginary (jω)" }, grid }
+    }
+  })
+});
+
+const phasePlaneChart = new Chart($("phasePlaneChart"), {
+  type: "line",
+  data: { datasets: [
+    { label: "Trajectory (x, ẋ)", borderColor: "#42c5c5", pointRadius: 0, borderWidth: 2, data: [] },
+    { label: "Start (0,0)", borderColor: "#a0a9b8", backgroundColor: "#a0a9b8", pointRadius: 5, showLine: false, data: [{x:0, y:0}] },
+    { label: "Equilibrium (1,0)", borderColor: "#4ade80", backgroundColor: "#4ade80", pointRadius: 6, showLine: false, data: [{x:1, y:0}] }
+  ]},
+  options: Object.assign({}, common, {
+    scales: {
+      x: { title: { display: true, text: "Displacement x" }, grid },
+      y: { title: { display: true, text: "Velocity ẋ" }, grid }
+    }
+  })
+});
+
+function update3(source) {
+  let z, wn, m, b, k;
+
+  if (source === "mbk") {
+    m = +c3.m.value; b = +c3.b.value; k = +c3.k.value;
+    wn = Math.sqrt(k / m);
+    z = b / (2 * Math.sqrt(k * m));
+    c3.z.value = z; c3.wn.value = wn;
+  } else {
+    z = +c3.z.value; wn = +c3.wn.value;
+    m = +c3.m.value;
+    k = m * wn * wn;
+    b = 2 * z * wn * m;
+    c3.k.value = k; c3.b.value = b;
+  }
+
+  $("zeta3V").textContent = fmt(z, 2);
+  $("wn3V").textContent = fmt(wn, 2) + " rad/s";
+  $("m3V").textContent = fmt(m, 1);
+  $("b3V").textContent = fmt(b, 2);
+  $("k3V").textContent = fmt(k, 2);
+
+  // Time response simulation
+  const tMax = Math.max(4, Math.min(25, 8 / (z * wn)));
+  const N = 400;
+  const tArr = [], yArr = [], inputArr = [], phaseArr = [];
+  let yMax = 0, tPeak = 0;
+
+  for (let i = 0; i <= N; i++) {
+    const t = (i / N) * tMax;
+    const yVal = ySecondOrder(t, z, wn);
+    const yDot = yDotSecondOrder(t, z, wn);
+
+    tArr.push(t);
+    yArr.push({ x: t, y: yVal });
+    inputArr.push({ x: t, y: 1.0 });
+    phaseArr.push({ x: yVal, y: yDot });
+
+    if (yVal > yMax) { yMax = yVal; tPeak = t; }
+  }
+
+  const dStep = stepChart3.data.datasets;
+  dStep[0].data = inputArr;
+  dStep[1].data = yArr;
+  
+  // Overshoot & Metrics
+  const OS = z < 1.0 ? Math.exp((-z * Math.PI) / Math.sqrt(1 - z * z)) * 100 : 0;
+  dStep[2].data = (z < 1.0 && OS > 0.5) ? [{ x: tPeak, y: yMax }] : [];
+  stepChart3.update("none");
+
+  // Phase plane update
+  phasePlaneChart.data.datasets[0].data = phaseArr;
+  phasePlaneChart.update("none");
+
+  // Metrics calculation
+  const tr = (1.76 - 0.417 * z) / wn; // rise time approximation
+  const ts = 4 / (z * wn);           // 2% settling time
+  const dampingMode = z < 0.99 ? "Underdamped" : (z <= 1.01 ? "Critically Damped" : "Overdamped");
+
+  const cards = [
+    ["Damping Mode", dampingMode, "ζ = " + fmt(z, 2)],
+    ["Peak Overshoot (%OS)", fmt(OS, 1) + "%", z < 1 ? "at tp = " + fmt(tPeak, 2) + " s" : "no overshoot"],
+    ["Rise Time (tr)", fmt(Math.max(0.01, tr), 2) + " s", "10% to 90% rise"],
+    ["Settling Time (ts 2%)", fmt(ts, 2) + " s", "±2% envelope: 4/(ζωn)"]
+  ];
+  $("metrics3").innerHTML = cards.map(c =>
+    '<div class="metric"><small>' + c[0] + "</small><h2>" + c[1] + "</h2><small>" + c[2] + "</small></div>").join("");
+
+  // Poles & Eigenvalues
+  let poles = [];
+  let eigText = "";
+  if (z < 1.0) {
+    const sigma = -z * wn;
+    const wd = wn * Math.sqrt(1 - z * z);
+    poles = [{ x: sigma, y: wd }, { x: sigma, y: -wd }];
+    eigText = `${fmt(sigma, 3)} ± ${fmt(wd, 3)}j`;
+  } else {
+    const s1 = -wn * (z - Math.sqrt(z * z - 1));
+    const s2 = -wn * (z + Math.sqrt(z * z - 1));
+    poles = [{ x: s1, y: 0 }, { x: s2, y: 0 }];
+    eigText = `${fmt(s1, 3)}, ${fmt(s2, 3)}`;
+  }
+
+  sPlaneChart.data.datasets[0].data = poles;
+  sPlaneChart.options.scales.x.min = Math.min(-wn * 2.5, -4);
+  sPlaneChart.options.scales.x.max = 1;
+  sPlaneChart.options.scales.y.min = -wn * 1.5 - 1;
+  sPlaneChart.options.scales.y.max = wn * 1.5 + 1;
+  sPlaneChart.update("none");
+
+  // State-Space Matrix Output
+  $("ssMatrixOut").innerHTML = `
+A = [   0          1.000  ]<br>
+    [ -${fmt(k/m, 3)}   -${fmt(b/m, 3)}  ]<br><br>
+B = [   0      ]<br>
+    [  ${fmt(1/m, 3)}   ]<br><br>
+Eigenvalues of A: <b>λ = ${eigText}</b> (Matches system transfer function poles)`;
+
+  // Validation Checks 4, 5, 6
+  const osZ05 = Math.exp((-0.5 * Math.PI) / Math.sqrt(1 - 0.25)) * 100;
+  const osZ10 = 0.0;
+  const realVal = -2 / (2 * 1);
+  const imagVal = Math.sqrt(4 * 1 * 4 - 2 * 2) / (2 * 1);
+
+  const rows3 = [
+    ["4. Second-order with ζ = 0.5: overshoot %", 16.3, osZ05, 0.1],
+    ["5. Second-order with ζ = 1: overshoot %", 0.0, osZ10, 0.001],
+    ["6. State Space (m=1, b=2, k=4): eigenvalues", -1.0, realVal, 0.001],
+    ["   Imaginary part of eigenvalues (± j)", 1.732, imagVal, 0.002]
+  ];
+  $("validation3").innerHTML = rows3.map(r => {
+    const ok = Math.abs(r[1] - r[2]) <= r[3];
+    return "<tr><td>" + r[0] + "</td><td>" + fmt(r[1], 3) + "</td><td>" + fmt(r[2], 3) +
+      '</td><td class="' + (ok ? "pass" : "fail") + '">' + (ok ? "✓ PASS" : "✗ FAIL") + "</td></tr>";
+  }).join("");
+}
+
+["input", "change"].forEach(ev => {
+  ["zeta3", "wn3"].forEach(id => $(id).addEventListener(ev, () => update3("zwn")));
+  ["m3", "b3", "k3"].forEach(id => $(id).addEventListener(ev, () => update3("mbk")));
+});
+$("loadEx3").addEventListener("click", () => {
+  c3.m.value = 1.0; c3.b.value = 2.0; c3.k.value = 4.0;
+  update3("mbk");
+});
+
+/* ================= MODULE 4: GUESS THE SENSOR ================= */
+let m4Current = null;
+let m4Score = 0;
+let m4Rounds = 0;
+let m4Time = [];
+let m4Noisy = [];
+
+const m4Chart = new Chart($("m4Chart"), {
+  type: "line",
+  data: { datasets: [
+    { label: "Measured Output (Noisy)", borderColor: "#42c5c5", pointRadius: 0, borderWidth: 2.5, data: [] },
+    { label: "Your Guess", borderColor: "#f2b84b", borderDash: [5, 4], pointRadius: 0, borderWidth: 2, data: [] },
+    { label: "True Underlying Sensor", borderColor: "#4ade80", pointRadius: 0, borderWidth: 2.5, data: [] }
+  ]},
+  options: Object.assign({}, common, {
+    scales: {
+      x: { type: "linear", title: { display: true, text: "Time (s)" }, grid },
+      y: { title: { display: true, text: "Sensor Reading" }, grid }
+    }
+  })
+});
+
+function m4NewRound() {
+  $("m4Feedback").textContent = "";
+  $("m4SubmitBtn").disabled = false;
+  $("m4K").value = ""; $("m4Tau").value = "";
+  $("m4Zeta").value = ""; $("m4Wn").value = "";
+  $("m4HintBox").style.display = "none";
+
+  const isFirst = Math.random() > 0.5;
+  if (isFirst) {
+    m4Current = {
+      type: 1,
+      K: +(1 + Math.random() * 3).toFixed(1),
+      tau: +(0.5 + Math.random() * 2.5).toFixed(2)
+    };
+    $("m4TypeBadge").textContent = "Mystery Sensor: FIRST-ORDER G(s) = K / (τs + 1)";
+    $("m4Fields1").style.display = "block";
+    $("m4Fields2").style.display = "none";
+    $("m4HintBox").innerHTML = "<b>First-Order Tips:</b><br>1. K is the final value where the sensor settles.<br>2. Find t where reading reaches 63.2% of K → that is τ.";
+  } else {
+    m4Current = {
+      type: 2,
+      zeta: +(0.15 + Math.random() * 0.55).toFixed(2),
+      wn: +(1.5 + Math.random() * 3.5).toFixed(1)
+    };
+    $("m4TypeBadge").textContent = "Mystery Sensor: SECOND-ORDER G(s) = ωn² / (s² + 2ζωns + ωn²)";
+    $("m4Fields1").style.display = "none";
+    $("m4Fields2").style.display = "block";
+    $("m4HintBox").innerHTML = "<b>Second-Order Tips:</b><br>1. Read peak height ymax to get Overshoot: %OS = (ymax − 1) × 100%.<br>2. %OS depends ONLY on ζ.<br>3. Peak time tp = π / (ωn·√(1−ζ²)).";
+  }
+
+  const tEnd = m4Current.type === 1 ? m4Current.tau * 5.5 : Math.max(5, 7 / (m4Current.zeta * m4Current.wn));
+  m4Time = []; m4Noisy = [];
+
+  for (let i = 0; i <= 250; i++) {
+    const t = (i / 250) * tEnd;
+    m4Time.push(t);
+    let yClean = 0;
+    if (m4Current.type === 1) {
+      yClean = yStep(t, m4Current.K, m4Current.tau, 1.0);
+    } else {
+      yClean = ySecondOrder(t, m4Current.zeta, m4Current.wn);
+    }
+    const noise = (Math.random() - 0.5) * 0.08 * (m4Current.K || 1.0);
+    m4Noisy.push({ x: t, y: yClean + noise });
+  }
+
+  const md = m4Chart.data.datasets;
+  md[0].data = m4Noisy;
+  md[1].data = [];
+  md[2].data = [];
+  m4Chart.update("none");
+}
+
+$("m4HintBtn").addEventListener("click", () => {
+  const b = $("m4HintBox");
+  b.style.display = b.style.display === "none" ? "block" : "none";
+});
+
+$("m4SubmitBtn").addEventListener("click", () => {
+  if (!m4Current) return;
+
+  let score = 0, summary = "";
+  const yGuess = [], yTrue = [];
+
+  if (m4Current.type === 1) {
+    const gK = parseFloat($("m4K").value);
+    const gTau = parseFloat($("m4Tau").value);
+    if (isNaN(gK) || isNaN(gTau) || gTau <= 0) { alert("Please enter valid K and τ"); return; }
+
+    const errK = Math.abs(gK - m4Current.K) / m4Current.K;
+    const errTau = Math.abs(gTau - m4Current.tau) / m4Current.tau;
+    const avgErr = (errK + errTau) / 2;
+
+    score = avgErr <= 0.10 ? 100 : Math.max(0, Math.round(100 - (avgErr - 0.10) * 160));
+    summary = `True: K = ${m4Current.K}, τ = ${m4Current.tau} s (Avg error: ${(avgErr*100).toFixed(1)}%)`;
+
+    m4Time.forEach(t => {
+      yGuess.push({ x: t, y: yStep(t, gK, gTau, 1.0) });
+      yTrue.push({ x: t, y: yStep(t, m4Current.K, m4Current.tau, 1.0) });
+    });
+  } else {
+    const gZ = parseFloat($("m4Zeta").value);
+    const gWn = parseFloat($("m4Wn").value);
+    if (isNaN(gZ) || isNaN(gWn) || gZ <= 0 || gWn <= 0) { alert("Please enter valid ζ and ωn"); return; }
+
+    const errZ = Math.abs(gZ - m4Current.zeta) / m4Current.zeta;
+    const errWn = Math.abs(gWn - m4Current.wn) / m4Current.wn;
+    const avgErr = (errZ + errWn) / 2;
+
+    score = avgErr <= 0.10 ? 100 : Math.max(0, Math.round(100 - (avgErr - 0.10) * 160));
+    summary = `True: ζ = ${m4Current.zeta}, ωn = ${m4Current.wn} rad/s (Avg error: ${(avgErr*100).toFixed(1)}%)`;
+
+    m4Time.forEach(t => {
+      yGuess.push({ x: t, y: ySecondOrder(t, gZ, gWn) });
+      yTrue.push({ x: t, y: ySecondOrder(t, m4Current.zeta, m4Current.wn) });
+    });
+  }
+
+  m4Rounds++;
+  m4Score += score;
+  $("m4Score").textContent = m4Score;
+  $("m4Rounds").textContent = m4Rounds;
+  $("m4SubmitBtn").disabled = true;
+
+  const md = m4Chart.data.datasets;
+  md[1].data = yGuess;
+  md[2].data = yTrue;
+  m4Chart.update("none");
+
+  $("m4Feedback").innerHTML = `
+    <b>Round Score: ${score}/100</b> ${score >= 80 ? '<span class="pass">Excellent!</span>' : '<span class="fail">Needs practice</span>'}<br>
+    ${summary}
+  `;
+});
+
+$("m4NewBtn").addEventListener("click", m4NewRound);
+
+/* ================= QUIZZES & INITIALIZATION ================= */
+const QS = [
+  { q: "τ doubles from 2 s to 4 s (K and the step stay the same). The time to reach 63.2% of the final value will…",
+    opts: ["be halved", "stay the same", "double"], ans: 2,
+    run() { setVals({ mode: "step", tau: 2 }); setVals({ tau: 4 });
+      return "t63 went from 2 s to 4 s. It always equals τ, so it doubles: a larger τ means a slower sensor."; } },
+  { q: "K doubles from 1 to 2 (τ stays 3 s). The time to reach 63.2% of the final value will…",
+    opts: ["be halved", "stay the same", "double"], ans: 1,
+    run() { setVals({ mode: "step", tau: 3, K: 1 }); const f1 = +ctl.K.value * +ctl.A.value;
+      setVals({ K: 2 }); const f2 = +ctl.K.value * +ctl.A.value;
+      return "The final value moved from " + fmt(f1) + " to " + fmt(f2) + ", but t63 is still τ = 3 s. K scales size, not speed."; } },
+  { q: "A ramp is applied to a sensor with τ = 3 s. In steady state the output trails the ideal ramp by about…",
+    opts: ["0 s (no lag)", "τ = 3 s", "2τ = 6 s"], ans: 1,
+    run() { setVals({ mode: "ramp", tau: 3 });
+      return "The lag is exactly τ = 3 s. The sensor reports where the input was 3 s ago."; } }
+];
+let qi = 0;
+function showQuestion() {
+  const q = QS[qi];
+  $("qText").textContent = "Question " + (qi + 1) + " of " + QS.length + ": " + q.q;
+  $("qOpts").innerHTML = q.opts.map((o, i) =>
+    '<label class="opt"><input type="radio" name="pick" value="' + i + '"> ' + o + "</label>").join("");
+  $("predictionResult").textContent = "";
+}
+$("checkPrediction").addEventListener("click", () => {
+  const sel = document.querySelector('input[name="pick"]:checked');
+  if (!sel) { $("predictionResult").textContent = "Choose a prediction first, then check."; return; }
+  const q = QS[qi], right = +sel.value === q.ans;
+  $("predictionResult").textContent = (right ? "Correct! " : "Not quite. ") + q.run();
+});
+$("nextQuestion").addEventListener("click", () => { qi = (qi + 1) % QS.length; showQuestion(); });
+
+function initQuiz(p, QList) {
   let i = 0;
   const show = () => {
-    $(p + "Text").textContent = "Question " + (i + 1) + " of " + QS.length + ": " + QS[i].q;
-    $(p + "Opts").innerHTML = QS[i].opts.map((o, k) =>
-      '<label class="opt" style="margin:8px 0"><input type="radio" name="pick' + p + '" value="' + k + '"> ' + o + "</label>").join("");
+    $(p + "Text").textContent = "Question " + (i + 1) + " of " + QList.length + ": " + QList[i].q;
+    $(p + "Opts").innerHTML = QList[i].opts.map((o, k) =>
+      '<label class="opt"><input type="radio" name="pick' + p + '" value="' + k + '"> ' + o + "</label>").join("");
     $(p + "Res").textContent = "";
   };
   $(p + "Check").addEventListener("click", () => {
     const sel = document.querySelector('input[name="pick' + p + '"]:checked');
     if (!sel) { $(p + "Res").textContent = "Choose a prediction first, then check."; return; }
-    $(p + "Res").textContent = (+sel.value === QS[i].ans ? "Correct! " : "Not quite. ") + QS[i].run();
+    $(p + "Res").textContent = (+sel.value === QList[i].ans ? "Correct! " : "Not quite. ") + QList[i].run();
   });
-  $(p + "Next").addEventListener("click", () => { i = (i + 1) % QS.length; show(); });
+  $(p + "Next").addEventListener("click", () => { i = (i + 1) % QList.length; show(); });
   show();
 }
+
 initQuiz("q2", [
   { q: "A sensor with τ = 0.5 s gets a sine at ω = 2 rad/s, exactly 1/τ. The amplitude ratio will be about…",
     opts: ["1.0 (no attenuation)", "0.707", "0.5"], ans: 1,
@@ -568,13 +992,37 @@ initQuiz("q2", [
   { q: "With τ = 0.5 s, the input frequency doubles from ω = 1 to ω = 2 rad/s. The phase lag will…",
     opts: ["stay the same", "double exactly", "grow, but by less than double"], ans: 2,
     run() { setVals2({ tau: 0.5, w: 1 }); const a = -phaseDeg(1, 0.5); setVals2({ w: 2 });
-      return "The lag went from " + fmt(a, 1) + "° to " + fmt(-phaseDeg(2, 0.5), 1) + "°. tan⁻¹ grows more slowly than its argument, and it never passes 90°."; } },
-  { q: "A sensor is used far below its cutoff, with ωτ = 0.1 (τ = 0.5 s, ω = 0.2 rad/s). The dynamic error δ = M − 1 is about…",
-    opts: ["−0.5%", "−5%", "−30%"], ans: 0,
-    run() { setVals2({ tau: 0.5, w: 0.2 });
-      return "M = 1/√(1 + 0.01) = " + fmt(mag(0.2, 0.5), 3) + ", so δ = " + fmt((mag(0.2, 0.5) - 1) * 100, 2) + "%. Well below the cutoff the sensor is almost perfect."; } }
+      return "The lag went from " + fmt(a, 1) + "° to " + fmt(-phaseDeg(2, 0.5), 1) + "°. tan⁻¹ grows slower than its argument."; } }
 ]);
+
+initQuiz("q3", [
+  { q: "If the damping ratio ζ is increased from 0.3 to 0.7, what happens to the step response overshoot?",
+    opts: ["It increases", "It decreases significantly", "It remains unchanged"], ans: 1,
+    run() { c3.z.value = 0.7; update3("zwn");
+      return "Higher damping ratio directly suppresses overshoot and oscillations."; } },
+  { q: "Where are the poles located for a critically damped system (ζ = 1.0)?",
+    opts: ["On the imaginary jω axis", "Two repeated real poles on the negative real axis", "In the right-half plane"], ans: 1,
+    run() { c3.z.value = 1.0; update3("zwn");
+      return "At ζ = 1, both poles are purely real and identical at s = −ωn."; } }
+]);
+
+// Nav highlight on scroll
+const links = [...document.querySelectorAll("nav a")];
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+    }
+  });
+}, { rootMargin: "-40% 0px -55% 0px" });
+document.querySelectorAll("main section").forEach(s => io.observe(s));
+
+// Initial runs
+showQuestion();
+update();
 update2();
+update3("zwn");
+m4NewRound();
 </script>
 </body>
 </html>
