@@ -35,7 +35,9 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 ## 📸 Screenshots
 
 ### Module 1: First-Order Time Response & Error Fraction
-![Module 1 Screenshot](images/module1.png)
+![Module 1 Screenshot](C:\Users\Lenovo\Pictures\Screenshots\M1.png)
+![Module 1 Screenshot](C:\Users\Lenovo\Pictures\Screenshots\M2.png)
+![Module 1 Screenshot](C:\Users\Lenovo\Pictures\Screenshots\M3.png)
 
 ### Module 2: Frequency Response & Bode Plot Analysis
 ![Module 2 Screenshot](images/module2.png)
