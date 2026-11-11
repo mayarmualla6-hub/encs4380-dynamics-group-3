@@ -1,5 +1,6 @@
 # encs4380-dynamics-group-3
 Interactive toolkit for exploring the dynamic characteristics of sensors using simulations and real-time plots.
+
 # ENCS4380 — Dynamic Characteristics Interactive Toolkit
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-brightgreen?logo=github)](https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/)
@@ -22,12 +23,31 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 
 | Team Member Name | Student ID | Assigned Module | Key Responsibilities & Contributions |
 | :--- | :---: | :---: | :--- |
-| **Amal Khalifah** | `[Student ID]` | **Module 1** | First-order step/ramp models, $\tau$ & $3\tau$ markers, log-error regression plot ($\ln E$ slope $-1/\tau$), quiz logic. |
-| **Mayar Mualla** | `[Student ID]` | **Module 2** | Frequency response, sine input/output visualizer, Bode magnitude/phase plots, dynamic error calculator ($\delta = M - 1$). |
-| **Hala Elayyan** | `[Student ID]` | **Module 3** | Second-order response, Runge-Kutta (RK4) simulator (`simulate3`), state-space matrix formulation ($A, B$), eigenvalue calculation. |
-| **Laila Awad** | `1230085` | **Module 4 & Phase Plane** | "Guess the Sensor" reverse-engineering game engine, noise injection, multi-trace overlays, phase plane ($(x_1, x_2)$ spiral), 6/6 validation tests. |
+| **Amal Khalifah** | `1230313` | **Module 1** | First-order step/ramp models, $\tau$ & $3\tau$ markers, log-error regression plot ($\ln E$ slope $-1/\tau$), quiz logic. |
+| **Mayar Mualla** | `1230690` | **Module 2** | Frequency response, sine input/output visualizer, Bode magnitude/phase plots, dynamic error calculator ($\delta = M - 1$). |
+| **Hala Elayyan** | `1230150` | **Module 3** | Second-order response, Runge-Kutta (RK4) simulator (`simulate3`), state-space matrix formulation ($A, B$), eigenvalue calculation. |
+| **Laila Awad** | `1230085` | **Module 4 & Bonus** | "Guess the Sensor" reverse-engineering game engine, noise injection, multi-trace overlays, phase plane ($(x_1, x_2)$ spiral), 6/6 validation tests, and bonus implementation. |
 
 *Each member's assigned ownership corresponds directly to dedicated GitHub Issues and commit logs.*
+
+---
+
+## 📸 Screenshots
+
+### Module 1: First-Order Time Response & Error Fraction
+![Module 1 Screenshot](images/module1.png)
+
+### Module 2: Frequency Response & Bode Plot Analysis
+![Module 2 Screenshot](images/module2.png)
+
+### Module 3: Second-Order Response & State-Space Phase Plane
+![Module 3 Screenshot](images/module3.png)
+
+### Module 4: "Guess the Sensor" Reverse-Engineering Challenge
+![Module 4 Screenshot](images/module4.png)
+
+### Bonus Module: Superposition Harmonic Distortion & ODE Solver Benchmarking
+![Bonus Module Screenshot](images/bonus.png)
 
 ---
 
@@ -58,10 +78,27 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 
 ### 4. Module 4: "Guess the Sensor" Reverse-Engineering Challenge
 * **Challenge Engine:** Randomly instantiates a hidden 1st-order sensor $(K, \tau)$ or 2nd-order sensor $(\zeta, \omega_n)$ with Gaussian measurement noise.
+* **Input Scenarios:** Supports step inputs as well as sinusoidal inputs at given frequencies.
 * **Estimation Methodology:** 
-  * For 1st-order: identify final value $K$ and time to $63.2\%$ for $\tau$.
+  * For 1st-order step: identify final value $K$ and time to $63.2\%$ for $\tau$.
+  * For 1st-order sine: extract amplitude attenuation $M$ to compute $\tau = \frac{\sqrt{(1/M)^2 - 1}}{\omega}$.
   * For 2nd-order: inspect peak overshoot for $\zeta$ ($\%OS = 100 e^{-\pi\zeta/\sqrt{1-\zeta^2}}$) and peak time for $\omega_n$.
 * **Visual Scoring & Reveal:** Overlays the noisy sensor reading against the user's estimated curve and the true clean sensor model. Awards full marks ($100\text{ pts}$) for estimates within $\le 10\%$ error.
+
+---
+
+## 🌟 Bonus Module: Superposition & Numerical ODE Solver
+
+As specified in **Section 8 (Bonus Points)** of the project guidelines, our team implemented:
+
+1. **Multi-Sine Superposition & Harmonic Distortion Explorer:**
+   * Generates a multi-frequency input:
+     $$x(t) = A_1 \sin(2\pi f_1 t) + A_2 \sin(2\pi (3f_1) t) + A_3 \sin(2\pi (5f_1) t)$$
+   * Demonstrates how a first-order sensor acts as a low-pass filter, phase-lagging and attenuating higher harmonics more severely than the fundamental, resulting in severe output waveform shape distortion.
+2. **Numerical ODE Solver Comparison (Analytical vs. Forward Euler vs. RK4):**
+   * Solves the sensor differential equation $\tau \dot{y} + y = u(t)$ numerically in real-time.
+   * Compares the closed-form exact solution against Forward Euler and 4th-Order Runge-Kutta (RK4).
+   * **Stability Analysis:** Graphically displays the Forward Euler stability limit ($h < 2\tau$). When the user increases the step size $h \ge 2\tau$, the simulation clearly illustrates numerical oscillation and divergence.
 
 ---
 
@@ -83,16 +120,16 @@ The application includes live programmatic checks directly implementing the lect
 
 ---
 
-## 🤖 AI Usage Disclosure
-In accordance with Section 8 of the course homework specification:
-* **Tools Used:** OpenAI ChatGPT / Claude.
-* **Application Scope:** Assisted in structuring HTML5/CSS grid responsiveness for mobile viewports, boilerplate Chart.js multi-dataset configurations, and formatting Markdown tables.
-* **Manual Verification:** All mathematical formulations (differential equations, state-space representations, RK4 discretization, eigenvalue roots, and frequency transfer functions) were extracted directly from the course lecture slides and State-Space Modeling 2026 notes, and verified manually by group members.
+## 📂 Repository Structure
 
----
-
-## 💻 Local Execution Instructions
-No server, backend, or dependency installation is required. Everything runs natively inside the client's web browser:
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/mayarmualla6-hub/encs4380-dynamics-group-3.git
+```text
+encs4380-dynamics-group-3/
+│
+├── index.html          # Core single-page interactive application (all modules + bonus)
+├── README.md           # Documentation, team responsibilities, formulas, and screenshots
+└── images/             # Verification and demonstration screenshots
+    ├── module1.png
+    ├── module2.png
+    ├── module3.png
+    ├── module4.png
+    └── bonus.png
