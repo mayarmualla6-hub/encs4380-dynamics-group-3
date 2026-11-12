@@ -26,7 +26,7 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 | **Amal Khalifah** | `1230313` | **Module 1** | First-order step/ramp models, $\tau$ & $3\tau$ markers, log-error regression plot ($\ln E$ slope $-1/\tau$), quiz logic. |
 | **Mayar Mualla** | `1230690` | **Module 2** | Frequency response, sine input/output visualizer, Bode magnitude/phase plots, dynamic error calculator ($\delta = M - 1$). |
 | **Hala Elayyan** | `1230150` | **Module 3** | Second-order response, Runge-Kutta (RK4) simulator (`simulate3`), state-space matrix formulation ($A, B$), eigenvalue calculation. |
-| **Laila Awad** | `1230085` | **Module 4 & Bonus** | "Guess the Sensor" reverse-engineering game engine, noise injection, multi-trace overlays, phase plane ($(x_1, x_2)$ spiral), 6/6 validation tests, and bonus implementation. |
+| **Laila Awad** | `1230085` | **Module 4 & Bonus** | "Guess the Sensor" game engine, Bonus implementation (Superposition & ODE solver), full `README.md` documentation, GitHub Issues setup, and `v1.0` Release deployment. |
 
 *Each member's assigned ownership corresponds directly to dedicated GitHub Issues and commit logs.*
 
