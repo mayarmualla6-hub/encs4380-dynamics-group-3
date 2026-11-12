@@ -14,7 +14,8 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 
 ## 🌐 Live Interactive Application
 👉 **Access the Live Toolkit on GitHub Pages:**  
-[https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/](https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/)*(Optimized for both desktop and mobile phone browsers with responsive controls)*
+**[https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/](https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/)**  
+*(Optimized for both desktop and mobile phone browsers with responsive controls)*
 
 ---
 
@@ -36,10 +37,8 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 ### Module 1: First-Order Time Response & Error Fraction
 <img width="674" height="830" alt="image" src="https://github.com/user-attachments/assets/631a778d-3f35-4b52-adcc-bd741fbf4d28" />
 
-
 ### Module 2: Frequency Response & Bode Plot Analysis
 <img width="712" height="820" alt="image" src="https://github.com/user-attachments/assets/707ed4dd-4eaf-43e0-a66e-c1bdef8a8212" />
-
 <img width="665" height="321" alt="image" src="https://github.com/user-attachments/assets/c163c698-ac1e-4988-bc32-f75385d3e3b0" />
 
 ### Module 3: Second-Order Response & State-Space Phase Plane
@@ -48,8 +47,6 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 <img width="840" height="449" alt="image" src="https://github.com/user-attachments/assets/2af9f973-3827-4197-ae8f-98a2a114b7d7" />
 <img width="467" height="423" alt="image" src="https://github.com/user-attachments/assets/7b407602-f222-476b-a5dd-d83d0a290ffe" />
 <img width="900" height="194" alt="image" src="https://github.com/user-attachments/assets/5aa29ced-0f0d-4271-a60d-50fc9d97d2af" />
-
-
 
 ### Module 4: "Guess the Sensor" Reverse-Engineering Challenge
 <img width="1003" height="522" alt="image" src="https://github.com/user-attachments/assets/73ad2eaa-c5f7-4415-99e9-00498c7222b6" />
@@ -129,15 +126,54 @@ The application includes live programmatic checks directly implementing the lect
 | **6** | State Space ($m=1, b=2, k=4$): Eigenvalues of $A$ | $\lambda = -1 \pm j1.732$ | `-1.000 ± j1.732` | <kbd>✓ PASS</kbd> |
 
 ---
+
 ## 📂 Repository Structure
 
 ```text
 encs4380-dynamics-group-3/
 │
-├── index.html          # Core single-page interactive application
-├── README.md           # Documentation, team responsibilities, and formulas
-├── Module1_Testing.zip # Test cases and verification data for Module 1
-├── Module2_Testing.zip # Test cases and verification data for Module 2
-├── Bonus_Testing.zip   # Bonus module simulation data and test logs
-├── Module3_Test_Cases.pdf # Theoretical test cases and results for Module 3
+├── index.html               # Interactive simulation toolkit (Modules 1–4 + Bonus)
+├── README.md                # Project documentation, team roles, formulas & screenshots
+├── Module1_Testing.zip      # Module 1 time response test logs & verification data
+├── Module2_Testing.zip      # Module 2 frequency response calculations & tests
+├── Module3_Test_Cases.pdf   # Module 3 second-order dynamics & RK4 validation report
+└── Bonus_Testing.zip        # Bonus superposition distortion & Euler/RK4 stability tests
+```
 
+---
+
+## 🤖 AI Usage Disclosure
+In accordance with Section 8 of the course homework specification:
+* **Tools Used:** OpenAI ChatGPT / Anthropic Claude.
+* **Application Scope:**
+  * Assisting in responsive CSS Grid and Flexbox styling for mobile and desktop screens.
+  * Formatting multi-trace datasets and chart aesthetics using Chart.js.
+  * Structuring clean Markdown tables and summary sections for the repository.
+* **Technical Integrity & Verification:**
+  * All mathematical models, state-space equations ($A, B, C, D$), 4th-Order Runge-Kutta (RK4) integration steps, eigenvalue derivations, and lecture slide validation benchmarks were derived from course slides and verified manually by the team members.
+  * Every team member understands and is fully prepared to explain each equation and line of code during the project demo.
+
+---
+
+## 💻 Local Execution Instructions
+No server, backend environment, or package installation is required. The application runs natively in any standard web browser:
+
+1. **Clone the repository:**
+```bash
+git clone https://github.com/mayarmualla6-hub/encs4380-dynamics-group-3.git
+cd encs4380-dynamics-group-3
+```
+
+2. **Open the web page:**
+* **Windows:** Double-click `index.html` or in terminal run:
+```cmd
+start index.html
+```
+* **macOS:**
+```bash
+open index.html
+```
+* **Linux:**
+```bash
+xdg-open index.html
+```
