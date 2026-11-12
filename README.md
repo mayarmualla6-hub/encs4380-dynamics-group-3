@@ -14,7 +14,7 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 
 ## 🌐 Live Interactive Application
 👉 **Access the Live Toolkit on GitHub Pages:**  
-**[https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/](https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/)**  
+**[https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgNzcnRjBmFwcF9pZA80Mzc2MjYzMTY5NzM3ODgAAR_SF8uE-GI4RTKmSXyKaLxiNRW7nmNT2wf0dpnTr9arl6lCh25yvgKXJDRHnw_aem_tg2Aiut4KWEOCk97Y89S4g#module4)**  
 *(Optimized for both desktop and mobile phone browsers with responsive controls)*
 
 ---
@@ -127,7 +127,7 @@ The application includes live programmatic checks directly implementing the lect
 ```text
 encs4380-dynamics-group-3/
 │
-├── index.html          # Core single-page interactive application (all modules + bonus)
+├── index(1).html          # Core single-page interactive application (all modules + bonus)
 ├── README.md           # Documentation, team responsibilities, formulas, and screenshots
 └── images/             # Verification and demonstration screenshots
     ├── module1.png
