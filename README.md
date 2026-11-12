@@ -35,12 +35,13 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 ## 📸 Screenshots
 
 ### Module 1: First-Order Time Response & Error Fraction
-![Module 1 Screenshot](C:\Users\Lenovo\Pictures\Screenshots\M1.png)
-![Module 1 Screenshot](C:\Users\Lenovo\Pictures\Screenshots\M2.png)
-![Module 1 Screenshot](C:\Users\Lenovo\Pictures\Screenshots\M3.png)
+<img width="674" height="830" alt="image" src="https://github.com/user-attachments/assets/631a778d-3f35-4b52-adcc-bd741fbf4d28" />
+
 
 ### Module 2: Frequency Response & Bode Plot Analysis
-![Module 2 Screenshot](images/module2.png)
+<img width="712" height="820" alt="image" src="https://github.com/user-attachments/assets/707ed4dd-4eaf-43e0-a66e-c1bdef8a8212" />
+
+<img width="665" height="321" alt="image" src="https://github.com/user-attachments/assets/c163c698-ac1e-4988-bc32-f75385d3e3b0" />
 
 ### Module 3: Second-Order Response & State-Space Phase Plane
 <img width="842" height="405" alt="image" src="https://github.com/user-attachments/assets/209aa3bf-4c70-4798-b6ed-423cfaff2cd9" />
@@ -53,9 +54,11 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 
 ### Module 4: "Guess the Sensor" Reverse-Engineering Challenge
 <img width="1003" height="522" alt="image" src="https://github.com/user-attachments/assets/73ad2eaa-c5f7-4415-99e9-00498c7222b6" />
+<img width="710" height="384" alt="image" src="https://github.com/user-attachments/assets/6239047b-1510-47e4-9044-538f381d073a" />
 
 ### Bonus Module: Superposition Harmonic Distortion & ODE Solver Benchmarking
 <img width="1096" height="804" alt="image" src="https://github.com/user-attachments/assets/caa3ca8f-0206-455d-b5da-e31ee01aac11" />
+<img width="698" height="539" alt="image" src="https://github.com/user-attachments/assets/61264d87-6e29-40d0-b1f3-753119514b1a" />
 
 ---
 
