@@ -127,17 +127,15 @@ The application includes live programmatic checks directly implementing the lect
 | **6** | State Space ($m=1, b=2, k=4$): Eigenvalues of $A$ | $\lambda = -1 \pm j1.732$ | `-1.000 ± j1.732` | <kbd>✓ PASS</kbd> |
 
 ---
-
 ## 📂 Repository Structure
 
 ```text
 encs4380-dynamics-group-3/
 │
-├── index(1).html          # Core single-page interactive application (all modules + bonus)
-├── README.md           # Documentation, team responsibilities, formulas, and screenshots
-└── images/             # Verification and demonstration screenshots
-    ├── module1.png
-    ├── module2.png
-    ├── module3.png
-    ├── module4.png
-    └── bonus.png
+├── index.html          # Core single-page interactive application
+├── README.md           # Documentation, team responsibilities, and formulas
+├── Module1_Testing.zip # Test cases and verification data for Module 1
+├── Module2_Testing.zip # Test cases and verification data for Module 2
+├── Bonus_Testing.zip   # Bonus module simulation data and test logs
+├── Module3_Test_Cases.pdf # Theoretical test cases and results for Module 3
+
