@@ -46,6 +46,7 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 <img width="842" height="405" alt="image" src="https://github.com/user-attachments/assets/209aa3bf-4c70-4798-b6ed-423cfaff2cd9" />
 <img width="849" height="369" alt="image" src="https://github.com/user-attachments/assets/40ededc5-b23d-4a74-966f-fc1dd4bf99d5" />
 <img width="840" height="449" alt="image" src="https://github.com/user-attachments/assets/2af9f973-3827-4197-ae8f-98a2a114b7d7" />
+<img width="467" height="423" alt="image" src="https://github.com/user-attachments/assets/7b407602-f222-476b-a5dd-d83d0a290ffe" />
 <img width="900" height="194" alt="image" src="https://github.com/user-attachments/assets/5aa29ced-0f0d-4271-a60d-50fc9d97d2af" />
 
 
