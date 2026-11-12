@@ -54,7 +54,7 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 
 ### Module 4: "Guess the Sensor" Reverse-Engineering Challenge
 <img width="1003" height="522" alt="image" src="https://github.com/user-attachments/assets/73ad2eaa-c5f7-4415-99e9-00498c7222b6" />
-<img width="710" height="384" alt="image" src="https://github.com/user-attachments/assets/6239047b-1510-47e4-9044-538f381d073a" />
+<img width="744" height="394" alt="image" src="https://github.com/user-attachments/assets/0aab3240-ebba-466b-94e3-8901e2b5c8c6" />
 
 ### Bonus Module: Superposition Harmonic Distortion & ODE Solver Benchmarking
 <img width="1096" height="804" alt="image" src="https://github.com/user-attachments/assets/caa3ca8f-0206-455d-b5da-e31ee01aac11" />
