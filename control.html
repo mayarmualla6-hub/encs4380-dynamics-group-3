@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PID Control Toolkit | ENCS4380</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0b1120;--panel:#151f32;--panel2:#1c2940;--text:#edf2fa;--muted:#9aabc2;--accent:#42c5c5;--amber:#f2b84b;--pink:#e879a9;--ok:#4ade80;--bad:#f87171;--border:#2b3b53}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{padding:28px 6%;border-bottom:1px solid var(--border);background:#101a2c}
+header h1{margin:0;font-size:26px}
+header p{color:var(--muted);margin-bottom:0}
+nav{display:flex;gap:10px;flex-wrap:wrap;padding:12px 6%;border-bottom:1px solid var(--border);position:sticky;top:0;background:#101a2ce6;backdrop-filter:blur(8px);z-index:100}
+nav a{color:var(--muted);text-decoration:none;padding:8px 14px;border-radius:8px;font-size:14px;font-weight:bold}
+nav a.active,nav a:hover{background:var(--panel2);color:var(--accent)}
+main{max-width:1250px;margin:auto;padding:25px 4%}
+.section-title{margin-bottom:8px;font-size:24px}
+.description{color:var(--muted);line-height:1.7}
+.grid{display:grid;grid-template-columns:330px 1fr;gap:20px;margin-top:20px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+.panel h3{margin-top:0;font-size:18px}
+label{display:block;margin:16px 0 6px;color:var(--muted);font-size:13.5px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{width:100%;padding:10px;border-radius:7px;border:1px solid var(--border);background:var(--panel2);color:var(--text);margin-top:4px}
+button{padding:10px;border-radius:7px;border:none;background:var(--accent);color:#071b23;width:100%;font-size:14px;font-weight:bold;cursor:pointer;margin-top:10px}
+button.alt{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+button:hover{opacity:.9}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--amber)}
+.value{color:var(--accent);float:right;font-weight:bold}
+.chart-box{position:relative;height:310px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.metric{background:var(--panel2);padding:12px;border-radius:8px}
+.metric small{color:var(--muted);font-size:12px}
+.metric h2{color:var(--accent);margin:4px 0 0;font-size:20px}
+.hint{color:var(--muted);line-height:1.6;font-size:13.5px}
+.result{margin-top:12px;color:var(--accent);line-height:1.6;font-size:14px}
+.opt{display:flex;gap:10px;align-items:center;margin:6px 0;color:var(--text);cursor:pointer}
+.eqline{font-family:Georgia,serif;font-style:italic;color:var(--text)}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:500px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);font-size:13.5px}
+th{color:var(--muted);font-weight:normal}
+.pass{color:var(--ok);font-weight:bold}
+.fail{color:var(--bad);font-weight:bold}
+footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid var(--border);font-size:13px}
+@media (max-width:880px){.grid{grid-template-columns:1fr}}
+
+/* ---------- additions for the Control section (Homework 2) ---------- */
+.grid>div{min-width:0}  /* let wide tables/code scroll instead of stretching the column on phones */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check{display:flex;gap:8px;align-items:center;margin:14px 0 4px;color:var(--text);font-size:14px;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.diagram{width:100%;height:auto;display:block}
+.code{background:#0a1322;border:1px solid var(--border);border-radius:8px;padding:14px;overflow:auto;max-height:420px;font:12.5px/1.5 Consolas,Menlo,monospace;color:#d7e3f4;white-space:pre}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.btnrow button{width:auto;flex:1 1 160px}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:bold;background:var(--panel2);border:1px solid var(--border)}
+.badge.ok{color:var(--ok);border-color:#2f6b47}.badge.bad{color:var(--bad);border-color:#7a3434}.badge.warn{color:var(--amber);border-color:#7a6230}
+.score{font-size:40px;font-weight:bold;color:var(--accent);margin:4px 0}
+.note{background:var(--panel2);border-left:3px solid var(--amber);padding:10px 14px;border-radius:6px;color:var(--text);font-size:13.5px;line-height:1.6}
+.todo{background:#2a1f10;border:1px dashed var(--amber);padding:10px 14px;border-radius:6px;color:#f6d79a;font-size:13.5px;line-height:1.6}
+textarea{width:100%;min-height:130px;padding:10px;border-radius:7px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font:12.5px Consolas,Menlo,monospace}
+.cardlink{display:block;text-decoration:none;color:var(--text);background:var(--panel);border:1px solid var(--accent);border-radius:12px;padding:18px 20px;margin-bottom:22px}
+.cardlink b{color:var(--accent);font-size:18px}.cardlink span{color:var(--muted);display:block;margin-top:6px;line-height:1.6}
+.chart-box.sm{height:240px}
+@media (max-width:600px){.row2{grid-template-columns:1fr}header h1{font-size:21px}.chart-box{height:260px}}
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Control: PID Control Toolkit</h1>
+  <p>ENCS4380: Interfacing Techniques | Birzeit University | Homework 2</p>
+</header>
+
+<nav>
+  <a href="index.html">← Homework 1</a>
+  <a href="#p1" class="active">P1 PID Playground</a>
+  <a href="#validation">Validation</a>
+  <a href="#p2">P2 Slow Sensor</a>
+</nav>
+
+<main>
+
+<p class="description">
+  Homework 1 showed how slow a system is. This section shows how feedback makes it faster and more accurate.
+  Every plot here comes from our own closed-loop simulation, stepped in time with <b>RK4</b>
+  (<code>js/pid-core.js</code>). Nothing is precomputed and there is no server.
+</p>
+
+<!-- ================= P1: PID PLAYGROUND ================= -->
+<section id="p1">
+  <h2 class="section-title">P1: PID Playground</h2>
+  <p class="description">
+    <span class="eqline">u(t) = K<sub>p</sub> e(t) + K<sub>i</sub> ∫e dt + K<sub>d</sub> de/dt</span>, with <span class="eqline">e = r − y</span>.
+    Start with P only, then add I, then D, and watch what each one does to the four numbers under the plot.
+  </p>
+  <div class="panel" id="p1Diag"></div>
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h3>Plant</h3>
+        <label for="p1Plant">Plant model</label>
+        <select id="p1Plant">
+          <option value="first">First order (Module 1): K/(τs + 1)</option>
+          <option value="second">Second order (Module 3): k/(ms² + bs + k)</option>
+        </select>
+        <div id="p1First">
+          <label for="p1K">Plant gain K <span class="value" id="p1KV"></span></label>
+          <input type="range" id="p1K" min="0.1" max="5" step="0.1" value="1">
+          <label for="p1Tau">Time constant τ <span class="value" id="p1TauV"></span></label>
+          <input type="range" id="p1Tau" min="0.05" max="10" step="0.05" value="1">
+        </div>
+        <div id="p1Second" style="display:none">
+          <label for="p1M">Mass m <span class="value" id="p1MV"></span></label>
+          <input type="range" id="p1M" min="0.5" max="5" step="0.1" value="1">
+          <label for="p1B">Damping b <span class="value" id="p1BV"></span></label>
+          <input type="range" id="p1B" min="0" max="12" step="0.1" value="2">
+          <label for="p1Kk">Stiffness k <span class="value" id="p1KkV"></span></label>
+          <input type="range" id="p1Kk" min="1" max="16" step="0.5" value="4">
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Controller</h3>
+        <label for="p1Kp">Proportional gain K<sub>p</sub> <span class="value" id="p1KpV"></span></label>
+        <input type="range" id="p1Kp" min="0" max="20" step="0.1" value="9">
+        <label for="p1Ki">Integral gain K<sub>i</sub> <span class="value" id="p1KiV"></span></label>
+        <input type="range" id="p1Ki" min="0" max="20" step="0.1" value="0">
+        <label for="p1Kd">Derivative gain K<sub>d</sub> <span class="value" id="p1KdV"></span></label>
+        <input type="range" id="p1Kd" min="0" max="5" step="0.01" value="0">
+        <label for="p1R">Setpoint step r <span class="value" id="p1RV"></span></label>
+        <input type="range" id="p1R" min="0.5" max="5" step="0.5" value="1">
+        <div class="row2">
+          <div><label for="p1UMin">u lower limit</label><input type="number" id="p1UMin" value="-20" step="1"></div>
+          <div><label for="p1UMax">u upper limit</label><input type="number" id="p1UMax" value="20" step="1"></div>
+        </div>
+        <label for="p1T">Simulation window <span class="value" id="p1TV"></span></label>
+        <input type="range" id="p1T" min="0.5" max="40" step="0.5" value="5">
+        <div class="btnrow">
+          <button class="alt" id="p1Val1">P only, Kp = 9</button>
+          <button class="alt" id="p1Val2">PI, Kp = Ki = 1</button>
+          <button class="alt" id="p1PID">Try a PID</button>
+          <button class="alt" id="p1Mine">Load my plant</button>
+        </div>
+        <p class="hint">The integrator stops adding while u is pinned at a limit and the error would push it further (anti-windup by clamping). P3 lets you switch this off.</p>
+      </div>
+      <div class="panel">
+        <h3>Predict, Then Check</h3>
+        <p class="hint" id="p1qText"></p>
+        <div id="p1qOpts"></div>
+        <button id="p1qCheck">Check Prediction</button>
+        <button id="p1qNext" class="alt">Next Question</button>
+        <div class="result" id="p1qRes" aria-live="polite"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h3>Output against setpoint</h3>
+        <p class="hint">Grey dashed: the plant alone, driven with the constant input that would give r in steady state. Compare it with the closed loop.</p>
+        <div class="chart-box"><canvas id="p1Out"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Control signal u and its limit</h3>
+        <p class="hint">Cyan is what reaches the plant. Pink dashed is what the PID asked for. Where they differ, the actuator is saturated.</p>
+        <div class="chart-box sm"><canvas id="p1U"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Live performance</h3>
+        <div class="metrics" id="p1Metrics"></div>
+      </div>
+      <div class="panel">
+        <h3>What each gain does (lecture rule of thumb)</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Increase</th><th>Rise time</th><th>Overshoot</th><th>Settling time</th><th>Steady-state error</th></tr></thead>
+          <tbody>
+            <tr><td>K<sub>p</sub></td><td>Decreases</td><td>Increases</td><td>Small change</td><td>Decreases, never zero</td></tr>
+            <tr><td>K<sub>i</sub></td><td>Decreases</td><td>Increases</td><td>Increases</td><td>Eliminated</td></tr>
+            <tr><td>K<sub>d</sub></td><td>Small change</td><td>Decreases</td><td>Decreases</td><td>No effect</td></tr>
+          </tbody>
+        </table></div>
+        <p class="hint">These are trends, not laws. Check each row with the sliders. On a first-order plant P alone never overshoots. Switch to the second-order plant to see K<sub>p</sub> raise the overshoot.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VALIDATION ================= -->
+<section id="validation">
+  <h2 class="section-title">Validation checks (handout §2.1)</h2>
+  <p class="description">Plant K/(τs + 1) with K = 1 and τ = 1 s. Each "Calculated" value is measured from our RK4 simulation, not copied from the formula, except where a row says "formula".</p>
+  <div class="panel">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Check</th><th>Expected</th><th>Calculated</th><th>Result</th></tr></thead>
+      <tbody id="valBody"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ================= P2: SLOW SENSOR ================= -->
+<section id="p2">
+  <h2 class="section-title">P2: A Slow Sensor in the Loop</h2>
+  <p class="description">
+    The controller never sees the true output y. It sees the sensor reading y<sub>m</sub>, where
+    <span class="eqline">τ<sub>s</sub> ẏ<sub>m</sub> + y<sub>m</sub> = y</span>. A slow sensor reports old news, so the controller keeps pushing after the real output has already arrived.
+    <b>The controller only controls what the sensor says.</b>
+  </p>
+  <div class="panel" id="p2Diag"></div>
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h3>Sensor and plant</h3>
+        <label for="p2Ts">Sensor time constant τ<sub>s</sub> <span class="value" id="p2TsV"></span></label>
+        <input type="range" id="p2Ts" min="0" max="1.5" step="0.01" value="0">
+        <label for="p2K">Plant gain K <span class="value" id="p2KV"></span></label>
+        <input type="range" id="p2K" min="0.1" max="5" step="0.1" value="1">
+        <label for="p2Tau">Plant time constant τ <span class="value" id="p2TauV"></span></label>
+        <input type="range" id="p2Tau" min="0.05" max="10" step="0.05" value="1">
+      </div>
+      <div class="panel">
+        <h3>Controller</h3>
+        <label for="p2Kp">K<sub>p</sub> <span class="value" id="p2KpV"></span></label>
+        <input type="range" id="p2Kp" min="0" max="20" step="0.1" value="4">
+        <label for="p2Ki">K<sub>i</sub> <span class="value" id="p2KiV"></span></label>
+        <input type="range" id="p2Ki" min="0" max="30" step="0.1" value="10">
+        <label for="p2Kd">K<sub>d</sub> <span class="value" id="p2KdV"></span></label>
+        <input type="range" id="p2Kd" min="0" max="3" step="0.01" value="0">
+        <label for="p2T">Simulation window <span class="value" id="p2TV"></span></label>
+        <input type="range" id="p2T" min="2" max="40" step="1" value="15">
+        <div class="btnrow">
+          <button class="alt" id="p2Fast">Fast sensor (τs = 0)</button>
+          <button class="alt" id="p2Edge">Edge of oscillation</button>
+          <button class="alt" id="p2Mine">Load my plant</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Predict, Then Check</h3>
+        <p class="hint" id="p2qText"></p>
+        <div id="p2qOpts"></div>
+        <button id="p2qCheck">Check Prediction</button>
+        <button id="p2qNext" class="alt">Next Question</button>
+        <div class="result" id="p2qRes" aria-live="polite"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h3>True output vs what the sensor reports</h3>
+        <div class="chart-box"><canvas id="p2Out"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Live performance (of the true output y)</h3>
+        <div class="metrics" id="p2Metrics"></div>
+        <p class="result" id="p2Theory"></p>
+      </div>
+      <div class="panel">
+        <h3>The move to oscillation: overshoot vs τ<sub>s</sub></h3>
+        <p class="hint">Each point is a full simulation with the current gains. Red points have not settled or are unstable. The amber point is your current τ<sub>s</sub>.</p>
+        <div class="chart-box sm"><canvas id="p2Sweep"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="soon">
+  <div class="note">P3 (Digital PID), P4 (Tuning challenge) and the My System page are coming in release v2.0.</div>
+</section>
+
+</main>
+
+<footer>ENCS4380: Interfacing Techniques | Birzeit University | PID Control Toolkit (Homework 2)</footer>
+
+<script>
+/* ######################## SHARED: RK4 closed-loop simulator, metrics, Arduino code generator ######################## */
+/* =====================================================================
+   pid-core.js — shared closed-loop simulator for the Control section
+   ENCS4380 Homework 2 (PID Control Toolkit)
+
+   Everything here is plain math with no DOM access, so the same code
+   runs in the browser and in Node (for testing the validation checks).
+
+   Plants (all start at rest, y(0) = 0):
+     first  : tau*y' + y = K*u                       G(s) = K/(tau s + 1)
+     second : m*y'' + b*y' + k*y = K*k*u             G(s) = K k/(m s^2 + b s + k)
+              (same mass–spring–damper as Module 3; with K = 1 the DC gain
+               is 1, exactly like Module 3's "F = k gives 1 m" convention)
+
+   Continuous PID (P1, P2, P4, My system):
+     u = Kp*e + Ki*∫e dt − Kd*d(ym)/dt,   e = r − ym
+     The derivative acts on the measurement ym, not on e. For a step
+     setpoint this is the same as Kd*de/dt for every t > 0, but it avoids
+     the infinite "derivative kick" at t = 0. It is filtered with a small
+     time constant Tf so the simulation stays finite.
+     The sensor is ym = y (ideal) or tauS*ym' + ym = y (P2).
+
+   Digital PID (P3), exactly the formula in the handout:
+     u[k] = Kp e[k] + Ki Ts Σ_{j=0..k} e[j] + Kd (e[k] − e[k−1]) / Ts
+     held constant between samples (zero-order hold). e[−1] is taken as
+     e[0], so there is no kick on the first sample.
+
+   The solver is fixed-step RK4 (required by the handout: "step it in
+   time with Euler or RK4").
+   ===================================================================== */
+(function (root) {
+  "use strict";
+
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+  /* ---------------- plant models ---------------- */
+  function plantOrder(p) { return p.type === "first" ? 1 : 2; }
+
+  function plantDeriv(p, x, u) {
+    const K = p.K === undefined ? 1 : p.K;
+    if (p.type === "first") return [(K * u - x[0]) / p.tau];
+    return [x[1], (K * p.k * u - p.b * x[1] - p.k * x[0]) / p.m];
+  }
+
+  // Shortest natural time scale of the plant, used to pick the step size.
+  function plantTimeScale(p) {
+    if (p.type === "first") return p.tau;
+    const wn = Math.sqrt(p.k / p.m);
+    return Math.min(1 / wn, p.b > 0 ? p.m / p.b : Infinity);
+  }
+
+  // Build a second-order plant from (K, zeta, wn) with m = 1.
+  function secondFromZetaWn(K, zeta, wn) {
+    return { type: "second", K, m: 1, b: 2 * zeta * wn, k: wn * wn };
+  }
+
+  /* ---------------- continuous closed loop ---------------- */
+  /* opts: plant, r, Kp, Ki, Kd, uMin, uMax, antiWindup, tauS, tEnd
+     returns { t, y, ym, u, uRaw, diverged }                             */
+  function simulate(opts) {
+    const p = opts.plant, n = plantOrder(p);
+    const r = opts.r === undefined ? 1 : opts.r;
+    const Kp = opts.Kp || 0, Ki = opts.Ki || 0, Kd = opts.Kd || 0;
+    const uMin = opts.uMin === undefined ? -Infinity : opts.uMin;
+    const uMax = opts.uMax === undefined ? Infinity : opts.uMax;
+    const aw = opts.antiWindup !== false;
+    const tauS = opts.tauS || 0;
+    const tEnd = opts.tEnd;
+    const ts = plantTimeScale(p);
+    const Tf = opts.Tf || 0.02 * ts;           // derivative filter time constant
+
+    // RK4 step: small compared with every time constant in the loop.
+    // Gains make the loop faster than the plant, so scale by the gains too.
+    const K = p.K === undefined ? 1 : p.K;
+    const loopSpeed = 1 + Math.abs(K) * (Math.abs(Kp) + Math.sqrt(Math.abs(Ki) * ts));
+    let h = Math.min(ts / (40 * loopSpeed), tEnd / 1500);
+    if (Kd > 0) h = Math.min(h, Tf / 3);
+    if (tauS > 0) h = Math.min(h, tauS / 10);
+    const steps = Math.ceil(tEnd / h); h = tEnd / steps;
+    const every = Math.max(1, Math.floor(steps / 1500));   // keep ≤ ~1500 stored points
+
+    // state: [plant (n) | ym | xi (∫e) | xf (filtered ym)]
+    const iYm = n, iXi = n + 1, iXf = n + 2;
+
+    function control(s) {
+      const y = s[0];
+      const ym = tauS > 0 ? s[iYm] : y;
+      const e = r - ym;
+      const dMeas = Kd > 0 ? (ym - s[iXf]) / Tf : 0;
+      const uRaw = Kp * e + Ki * s[iXi] - Kd * dMeas;
+      const u = clamp(uRaw, uMin, uMax);
+      const pushing = (uRaw > uMax && e > 0) || (uRaw < uMin && e < 0);
+      return { y, ym, e, uRaw, u, freeze: aw && pushing };
+    }
+    function deriv(s) {
+      const c = control(s);
+      const dx = plantDeriv(p, s, c.u);
+      const ds = new Array(s.length);
+      for (let i = 0; i < n; i++) ds[i] = dx[i];
+      ds[iYm] = tauS > 0 ? (c.y - s[iYm]) / tauS : 0;
+      ds[iXi] = c.freeze ? 0 : c.e;
+      ds[iXf] = Kd > 0 ? (c.ym - s[iXf]) / Tf : 0;
+      return ds;
+    }
+
+    let s = new Array(n + 3).fill(0);
+    const out = { t: [], y: [], ym: [], u: [], uRaw: [], diverged: false };
+    const rec = (t) => {
+      const c = control(s);
+      out.t.push(t); out.y.push(c.y); out.ym.push(c.ym); out.u.push(c.u); out.uRaw.push(c.uRaw);
+    };
+    rec(0);
+    const add = (a, b, c) => a.map((v, i) => v + c * b[i]);
+    const limit = 1e4 * Math.max(1, Math.abs(r));
+    for (let i = 1; i <= steps; i++) {
+      const k1 = deriv(s), k2 = deriv(add(s, k1, h / 2)), k3 = deriv(add(s, k2, h / 2)), k4 = deriv(add(s, k3, h));
+      s = s.map((v, j) => v + h * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j]) / 6);
+      if (!Number.isFinite(s[0]) || Math.abs(s[0]) > limit) { out.diverged = true; rec(i * h); break; }
+      if (i % every === 0 || i === steps) rec(i * h);
+    }
+    return out;
+  }
+
+  /* ---------------- digital PID with zero-order hold ---------------- */
+  /* One controller step, written exactly like the generated Arduino code.
+     st = { errorSum, prevError, first }  (mutated)                       */
+  function digitalPidStep(st, g, setpoint, y) {
+    const e = setpoint - y;
+    const newSum = st.errorSum + e;
+    const dE = st.first ? 0 : (e - st.prevError) / g.Ts;
+    let u = g.Kp * e + g.Ki * g.Ts * newSum + g.Kd * dE;
+    const pushingHigh = u > g.uMax && e > 0;
+    const pushingLow = u < g.uMin && e < 0;
+    if (g.antiWindup && (pushingHigh || pushingLow)) {
+      u = g.Kp * e + g.Ki * g.Ts * st.errorSum + g.Kd * dE;   // freeze the sum
+    } else {
+      st.errorSum = newSum;
+    }
+    st.prevError = e; st.first = false;
+    return { u: clamp(u, g.uMin, g.uMax), uRaw: u, e };
+  }
+
+  /* opts: plant, r, Kp, Ki, Kd, Ts, uMin, uMax, antiWindup, tEnd
+     returns { t, y, u, tk, uk, ukRaw, diverged }  (tk/uk = the samples)          */
+  function simulateDigital(opts) {
+    const p = opts.plant, n = plantOrder(p);
+    const r = opts.r === undefined ? 1 : opts.r;
+    const g = {
+      Kp: opts.Kp || 0, Ki: opts.Ki || 0, Kd: opts.Kd || 0, Ts: opts.Ts,
+      uMin: opts.uMin === undefined ? -Infinity : opts.uMin,
+      uMax: opts.uMax === undefined ? Infinity : opts.uMax,
+      antiWindup: !!opts.antiWindup
+    };
+    const tEnd = opts.tEnd, Ts = opts.Ts;
+    const ts = plantTimeScale(p);
+    const sub = Math.max(2, Math.ceil(Ts / (ts / 40)));        // RK4 sub-steps per sample
+    const h = Ts / sub;
+    const st = { errorSum: 0, prevError: 0, first: true };
+    let x = new Array(n).fill(0);
+    const out = { t: [0], y: [0], u: [], tk: [], uk: [], ukRaw: [], diverged: false };
+    const add = (a, b, c) => a.map((v, i) => v + c * b[i]);
+    const kMax = Math.ceil(tEnd / Ts);
+    const limit = 1e4 * Math.max(1, Math.abs(r));
+    const totalPts = kMax * sub, every = Math.max(1, Math.floor(totalPts / 2000));
+    let count = 0;
+    for (let k = 0; k < kMax; k++) {
+      const c = digitalPidStep(st, g, r, x[0]);
+      out.tk.push(k * Ts); out.uk.push(c.u); out.ukRaw.push(c.uRaw);
+      if (k === 0) out.u.push(c.u);
+      for (let j = 0; j < sub; j++) {
+        const f = s => plantDeriv(p, s, c.u);
+        const k1 = f(x), k2 = f(add(x, k1, h / 2)), k3 = f(add(x, k2, h / 2)), k4 = f(add(x, k3, h));
+        x = x.map((v, i) => v + h * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]) / 6);
+        count++;
+        if (count % every === 0 || j === sub - 1) { out.t.push(k * Ts + (j + 1) * h); out.y.push(x[0]); out.u.push(c.u); }
+      }
+      if (!Number.isFinite(x[0]) || Math.abs(x[0]) > limit) { out.diverged = true; break; }
+    }
+    return out;
+  }
+
+  /* ---------------- step-response metrics ----------------
+     Same definitions as Module 3 of Homework 1:
+       rise time 10–90 % of the final value, overshoot relative to the
+       final value, settling time = last exit from the ±2 % band.
+     Steady-state error is (r − y_final)/r in percent.                   */
+  function crossing(t, y, level) {
+    for (let i = 1; i < y.length; i++)
+      if (y[i - 1] < level && y[i] >= level) return t[i - 1] + (level - y[i - 1]) * (t[i] - t[i - 1]) / (y[i] - y[i - 1]);
+    return NaN;
+  }
+  function metrics(t, y, r, diverged) {
+    const N = y.length;
+    const res = { settlingToR: NaN, rise: NaN, overshoot: NaN, settling: NaN, ess: NaN, peak: NaN, peakTime: NaN, t63: NaN, yFinal: NaN, settled: false, unstable: !!diverged };
+    if (diverged || N < 10) { res.unstable = true; return res; }
+    const yf = y[N - 1];
+    res.yFinal = yf;
+    res.ess = 100 * (r - yf) / r;
+    if (!(Math.abs(yf) > 1e-9)) return res;
+    let iMax = 0; for (let i = 1; i < N; i++) if (y[i] > y[iMax]) iMax = i;
+    res.peak = y[iMax]; res.peakTime = t[iMax];
+    res.overshoot = Math.max(0, 100 * (y[iMax] - yf) / Math.abs(yf));
+    const osVsSetpoint = Math.max(0, 100 * (y[iMax] - r) / Math.abs(r));
+    res.rise = crossing(t, y, 0.9 * yf) - crossing(t, y, 0.1 * yf);
+    res.t63 = crossing(t, y, 0.632 * yf);
+    // Still moving at the end of the window? Then it has not settled.
+    const tail = y.slice(Math.floor(0.85 * N));
+    const span = Math.max(...tail) - Math.min(...tail);
+    if (span > 0.02 * Math.abs(yf)) {
+      // growing oscillation → unstable; otherwise just "not settled yet"
+      const half = Math.floor(N / 2);
+      const s1 = Math.max(...y.slice(half, Math.floor(0.75 * N))) - Math.min(...y.slice(half, Math.floor(0.75 * N)));
+      if (span > 1.05 * s1 && span > 0.2 * Math.abs(yf)) res.unstable = true;
+      // y_final is just wherever the oscillation happens to be, so measure
+      // overshoot and error against the setpoint instead.
+      res.overshoot = osVsSetpoint;
+      res.ess = NaN;
+      return res;
+    }
+    const band = 0.02 * Math.abs(yf);
+    let last = -1;
+    for (let i = 0; i < N; i++) if (Math.abs(y[i] - yf) > band) last = i;
+    res.settled = true;
+    res.settling = last < 0 ? 0 : t[Math.min(N - 1, last + 1)];
+    // Settling into ±2 % of the setpoint itself (used by the P4 spec).
+    let lastR = -1;
+    for (let i = 0; i < N; i++) if (Math.abs(y[i] - r) > 0.02 * Math.abs(r)) lastR = i;
+    res.settlingToR = lastR >= N - 1 ? NaN : lastR < 0 ? 0 : t[lastR + 1];
+    return res;
+  }
+
+  /* ---------------- closed-loop formulas for the validation table ------- */
+  // First-order plant + PI: tau s^2 + (1 + K Kp) s + K Ki = 0
+  function piSecondOrder(K, tau, Kp, Ki) {
+    const wn = Math.sqrt(K * Ki / tau);
+    return { wn, zeta: (1 + K * Kp) / (2 * Math.sqrt(tau * K * Ki)) };
+  }
+  // Inverse: PI gains that place the poles at (zeta, wn) for K/(tau s + 1)
+  function piGainsFor(K, tau, zeta, wn) {
+    return { Kp: (2 * zeta * wn * tau - 1) / K, Ki: wn * wn * tau / K };
+  }
+
+  /* ---------------- Arduino code generator ---------------- */
+  function arduinoCode(g) {
+    const f = (v, d = 4) => Number(v).toFixed(d);
+    const tsUs = Math.round(g.Ts * 1e6);
+    const units = g.units || "units of your sensor";
+    return `// Digital PID generated by the ENCS4380 PID Control Toolkit
+// u[k] = Kp*e[k] + Ki*Ts*sum(e[0..k]) + Kd*(e[k] - e[k-1])/Ts
+// Output is held constant between samples (zero-order hold).
+
+const float Kp = ${f(g.Kp)};
+const float Ki = ${f(g.Ki)};
+const float Kd = ${f(g.Kd)};
+const float Ts = ${f(g.Ts, 4)};               // sampling time (s)
+const unsigned long TS_US = ${tsUs}UL;      // sampling time (microseconds)
+const float U_MIN = ${f(g.uMin, 2)};
+const float U_MAX = ${f(g.uMax, 2)};
+const bool  ANTI_WINDUP = ${g.antiWindup ? "true" : "false"};
+
+float setpoint = ${f(g.setpoint === undefined ? 1 : g.setpoint, 3)};   // ${units}
+float errorSum = 0.0;      // sum of e[j] for j = 0..k
+float prevError = 0.0;     // e[k-1]
+bool  firstSample = true;  // no derivative kick on the first sample
+unsigned long lastTime = 0;
+
+// TODO: return the measured output, e.g. wheel speed from the encoder.
+float readSensor() {
+  return 0.0;
+}
+
+// TODO: drive the actuator, e.g. analogWrite(PWM_PIN, (int)(u * 255.0 / 100.0));
+void writeActuator(float u) {
+}
+
+float pidStep(float y) {
+  float e = setpoint - y;
+  float newSum = errorSum + e;
+  float dE = firstSample ? 0.0 : (e - prevError) / Ts;
+  float u = Kp * e + Ki * Ts * newSum + Kd * dE;
+
+  // Anti-windup (clamping): if the output is saturated and the error would
+  // push it further into saturation, do not add e[k] to the sum.
+  bool pushingHigh = (u > U_MAX) && (e > 0);
+  bool pushingLow  = (u < U_MIN) && (e < 0);
+  if (ANTI_WINDUP && (pushingHigh || pushingLow)) {
+    u = Kp * e + Ki * Ts * errorSum + Kd * dE;
+  } else {
+    errorSum = newSum;
+  }
+
+  prevError = e;
+  firstSample = false;
+  return constrain(u, U_MIN, U_MAX);
+}
+
+void setup() {
+  Serial.begin(115200);
+  lastTime = micros();
+}
+
+void loop() {
+  if (micros() - lastTime >= TS_US) {   // run exactly once every Ts
+    lastTime += TS_US;
+    float y = readSensor();
+    float u = pidStep(y);
+    writeActuator(u);
+    Serial.print(y); Serial.print(','); Serial.println(u);   // log for plotting
+  }
+}
+`;
+  }
+
+  /* ---------------- open loop: plant alone with a constant input ------- */
+  function openLoop(p, u, tEnd, N = 400) {
+    const n = plantOrder(p), h = tEnd / N;
+    let x = new Array(n).fill(0);
+    const t = [0], y = [0];
+    const add = (a, b, c) => a.map((v, i) => v + c * b[i]);
+    const f = s => plantDeriv(p, s, u);
+    const sub = Math.max(1, Math.ceil(h / (plantTimeScale(p) / 40))), hh = h / sub;
+    for (let i = 1; i <= N; i++) {
+      for (let j = 0; j < sub; j++) {
+        const k1 = f(x), k2 = f(add(x, k1, hh / 2)), k3 = f(add(x, k2, hh / 2)), k4 = f(add(x, k3, hh));
+        x = x.map((v, q) => v + hh * (k1[q] + 2 * k2[q] + 2 * k3[q] + k4[q]) / 6);
+      }
+      t.push(i * h); y.push(x[0]);
+    }
+    return { t, y };
+  }
+
+  /* ---------------- helpers ---------------- */
+  function toXY(t, v) { const o = new Array(t.length); for (let i = 0; i < t.length; i++) o[i] = { x: t[i], y: v[i] }; return o; }
+  function logspace(a, b, n) { const o = []; for (let i = 0; i < n; i++) o.push(a * Math.pow(b / a, i / (n - 1))); return o; }
+
+  const api = { clamp, openLoop, plantOrder, plantDeriv, plantTimeScale, secondFromZetaWn, simulate, simulateDigital,
+    digitalPidStep, metrics, crossing, piSecondOrder, piGainsFor, arduinoCode, toXY, logspace };
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+  else root.PID = api;
+})(this);
+
+</script>
+<script>
+/* ######################## SHARED: charts, metric cards, quiz boxes, block diagram ######################## */
+/* =====================================================================
+   ui.js — small shared UI helpers for the Control section
+   (charts, metric cards, "Predict, then check" boxes, block diagrams)
+   ===================================================================== */
+"use strict";
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 2) => Number.isFinite(x) ? Number(x).toFixed(d) : "—";
+
+Chart.defaults.color = "#c3d0e0";
+const GRID = { color: "#29384d" };
+const COL = { cyan: "#42c5c5", amber: "#f2b84b", pink: "#e879a9", gray: "#a0a9b8", ok: "#4ade80", bad: "#f87171", muted: "#9aabc2" };
+
+/* Line chart with linear x axis. datasets: [{label, color, dash, width, stepped, points}] */
+function makeChart(canvasId, datasets, xTitle, yTitle, extra = {}) {
+  return new Chart($(canvasId), {
+    type: "line",
+    data: {
+      datasets: datasets.map(d => ({
+        label: d.label, data: [], borderColor: d.color, backgroundColor: d.color,
+        borderDash: d.dash || [], borderWidth: d.width || 2, pointRadius: d.points || 0,
+        showLine: d.showLine !== false, stepped: d.stepped || false, yAxisID: d.axis || "y"
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { mode: "nearest", intersect: false },
+      plugins: { legend: { labels: { boxWidth: 14 } } },
+      scales: Object.assign({
+        x: { type: extra.xLog ? "logarithmic" : "linear", title: { display: true, text: xTitle }, grid: GRID },
+        y: { title: { display: true, text: yTitle }, grid: GRID }
+      }, extra.scales || {})
+    }
+  });
+}
+
+/* Metric cards: rows = [[title, value, caption, cls?]] */
+function showCards(el, rows) {
+  el.innerHTML = rows.map(c =>
+    `<div class="metric"><small>${c[0]}</small><h2${c[3] ? ` class="${c[3]}"` : ""}>${c[1]}</h2><small>${c[2] || ""}</small></div>`).join("");
+}
+
+/* Standard metric cards for a step response */
+function responseCards(m, extraRows = []) {
+  const st = m.unstable ? ["Unstable", "fail"] : !m.settled ? ["Not settled", "fail"] : ["Settled", "pass"];
+  return [
+    ["Rise time (10–90%)", Number.isFinite(m.rise) ? fmt(m.rise, 3) + " s" : "—", "of the final value"],
+    ["Overshoot", fmt(m.overshoot, 1) + "%", m.settled ? "above the final value" : "above the setpoint"],
+    ["Settling time (±2%)", m.settled ? fmt(m.settling, 3) + " s" : "—", "last exit from the band"],
+    ["Steady-state error", m.settled ? fmt(m.ess, 2) + "%" : "—", "(r − y∞)/r"],
+    ["Loop status", st[0], m.unstable ? "growing oscillation" : m.settled ? "inside ±2% at the end" : "still moving at the end", st[1]]
+  ].concat(extraRows);
+}
+
+/* "Predict, then check" box, same markup and behaviour as Homework 1 */
+function makeQuiz(prefix, questions) {
+  let i = 0;
+  const show = () => {
+    $(prefix + "Text").textContent = `Question ${i + 1} of ${questions.length}: ${questions[i].q}`;
+    $(prefix + "Opts").innerHTML = questions[i].opts.map((o, k) =>
+      `<label class="opt"><input type="radio" name="${prefix}Pick" value="${k}"> ${o}</label>`).join("");
+    $(prefix + "Res").textContent = "";
+  };
+  $(prefix + "Check").addEventListener("click", () => {
+    const s = document.querySelector(`input[name="${prefix}Pick"]:checked`);
+    if (!s) { $(prefix + "Res").textContent = "Choose an answer first."; return; }
+    $(prefix + "Res").textContent = (+s.value === questions[i].ans ? "✓ Correct! " : "✗ Not quite. ") + questions[i].msg;
+  });
+  $(prefix + "Next").addEventListener("click", () => { i = (i + 1) % questions.length; show(); });
+  show();
+}
+
+/* Closed-loop block diagram as inline SVG.
+   o = { controller, plant, sensor, limit, sensorHighlight, digital }      */
+function blockDiagram(o) {
+  const box = (x, y, w, h, title, sub, color) => `
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#1c2940" stroke="${color || "#42c5c5"}" stroke-width="2"/>
+    <text x="${x + w / 2}" y="${y + (sub ? 24 : 32)}" text-anchor="middle" fill="#edf2fa" font-size="14" font-weight="bold">${title}</text>
+    ${sub ? `<text x="${x + w / 2}" y="${y + 44}" text-anchor="middle" fill="#9aabc2" font-size="12">${sub}</text>` : ""}`;
+  const arrow = (x1, y1, x2, y2, label, lx, ly) => `
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#9aabc2" stroke-width="2" marker-end="url(#ah)"/>
+    ${label ? `<text x="${lx}" y="${ly}" fill="#f2b84b" font-size="13" font-style="italic">${label}</text>` : ""}`;
+  const sensorColor = o.sensorHighlight ? "#e879a9" : "#42c5c5";
+  return `<svg class="diagram" viewBox="0 0 800 200" role="img" aria-label="Closed-loop block diagram">
+    <defs><marker id="ah" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#9aabc2"/></marker></defs>
+    ${arrow(10, 50, 92, 50, "r", 20, 40)}
+    <circle cx="110" cy="50" r="17" fill="#1c2940" stroke="#42c5c5" stroke-width="2"/>
+    <text x="110" y="55" text-anchor="middle" fill="#edf2fa" font-size="16">Σ</text>
+    <text x="80" y="76" fill="#edf2fa" font-size="14">−</text><text x="86" y="44" fill="#edf2fa" font-size="14">+</text>
+    ${arrow(127, 50, 175, 50, "e", 145, 40)}
+    ${box(177, 20, 170, 60, o.digital ? "Digital PID" : "PID", o.controller)}
+    ${arrow(347, 50, 395, 50, "", 0, 0)}
+    ${box(397, 20, 110, 60, "Limit", o.limit, "#f2b84b")}
+    ${arrow(507, 50, 555, 50, "u", 522, 40)}
+    ${box(557, 20, 150, 60, "Plant", o.plant)}
+    ${arrow(707, 50, 790, 50, "y", 760, 40)}
+    <line x1="745" y1="50" x2="745" y2="150" stroke="#9aabc2" stroke-width="2"/>
+    ${arrow(745, 150, 517, 150, "", 0, 0)}
+    ${box(367, 120, 150, 60, "Sensor", o.sensor, sensorColor)}
+    <line x1="367" y1="150" x2="110" y2="150" stroke="#9aabc2" stroke-width="2"/>
+    ${arrow(110, 150, 110, 69, "yₘ", 120, 120)}
+  </svg>`;
+}
+
+/* Copy text to the clipboard with a fallback for older phones */
+function copyText(text, btn) {
+  const done = () => { const t = btn.textContent; btn.textContent = "✓ Copied"; setTimeout(() => btn.textContent = t, 1500); };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done);
+  else { const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); done(); }
+}
+
+/* Run fn at most once per animation frame (keeps sliders smooth) */
+function throttle(fn) {
+  let queued = false;
+  return () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; fn(); }); };
+}
+/* Run fn once the user stops moving a slider for `ms` milliseconds */
+function debounce(fn, ms = 180) { let h; return () => { clearTimeout(h); h = setTimeout(fn, ms); }; }
+
+/* Slider helper: binds a range input to its value label */
+function bindSlider(id, digits, unit = "") {
+  const el = $(id), lab = $(id + "V");
+  const show = () => { if (lab) lab.textContent = fmt(+el.value, digits) + unit; };
+  el.addEventListener("input", show); show();
+  return { el, get v() { return +el.value; }, set(v) { if (+el.max < v) el.max = v; if (+el.min > v) el.min = v; el.value = v; show(); } };
+}
+
+/* Active-nav highlighting, same as Homework 1 */
+function activeNav() {
+  const links = [...document.querySelectorAll("nav a[href^='#']")];
+  const obs = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+  }), { rootMargin: "-30% 0px -60% 0px" });
+  document.querySelectorAll("main section").forEach(s => obs.observe(s));
+}
+
+</script>
+<script>
+/* ######################## MY SYSTEM: our plant numbers (placeholder until measured) ######################## */
+/* =====================================================================
+   my-system-data.js — YOUR project's plant, in one place.
+
+   Edit these numbers once. They are used by:
+     • the "My system" page (my-system.html)
+     • the "Load my plant" buttons in P1, P2 and P3
+
+   !!! PLACEHOLDER VALUES — replace them with your own measurement or
+   !!! datasheet numbers before submitting, and cite the source below.
+   ===================================================================== */
+const MY_SYSTEM = {
+  name: "Micromouse left drive motor (speed loop)",   // TODO: your actuator
+  K: 1.0,            // TODO: steady-state gain, output units per % PWM
+  tau: 0.10,         // TODO: time constant in seconds
+  outputUnits: "mm/s",                               // TODO: units of y
+  inputUnits: "% PWM",                               // u is the PWM duty cycle
+  uMin: 0,           // PWM lower limit (%)
+  uMax: 100,         // PWM upper limit (%)
+  setpoint: 50,      // TODO: a typical target speed, in outputUnits
+  Ts: 0.01,          // TODO: your control-loop sampling time on the Arduino (s)
+  isPlaceholder: true,   // set to false once K and tau are your real numbers
+  source: "TODO: e.g. 'PWM step 0 → 60 % on 12 Nov 2026, encoder logged at 200 Hz, fitted on the My system page'"
+};
+
+</script>
+<script>
+/* ######################## P1: PID playground ######################## */
+/* =====================================================================
+   P1 — PID playground                                Owner: TODO (name)
+   ===================================================================== */
+(function () {
+  const S = {
+    K: bindSlider("p1K", 1), tau: bindSlider("p1Tau", 2, " s"),
+    m: bindSlider("p1M", 1), b: bindSlider("p1B", 1), k: bindSlider("p1Kk", 1),
+    Kp: bindSlider("p1Kp", 2), Ki: bindSlider("p1Ki", 2), Kd: bindSlider("p1Kd", 2),
+    r: bindSlider("p1R", 1), T: bindSlider("p1T", 1, " s")
+  };
+  const plantSel = $("p1Plant"), uMinEl = $("p1UMin"), uMaxEl = $("p1UMax");
+
+  const outChart = makeChart("p1Out", [
+    { label: "Setpoint r", color: COL.gray, dash: [6, 4] },
+    { label: "Closed-loop output y", color: COL.cyan, width: 3 },
+    { label: "Plant alone (open loop)", color: "#6b7a90", dash: [3, 4] },
+    { label: "±2% band", color: COL.muted, dash: [2, 5], width: 1 }
+  ], "Time (s)", "Output");
+  const uChart = makeChart("p1U", [
+    { label: "u applied", color: COL.cyan, width: 2.5 },
+    { label: "u requested by PID", color: COL.pink, dash: [5, 4], width: 1.5 },
+    { label: "Limits", color: COL.amber, dash: [6, 4], width: 1.5 }
+  ], "Time (s)", "Control signal u");
+
+  function plant() {
+    return plantSel.value === "first"
+      ? { type: "first", K: S.K.v, tau: S.tau.v }
+      : { type: "second", K: 1, m: S.m.v, b: S.b.v, k: S.k.v };
+  }
+
+  function update() {
+    const first = plantSel.value === "first";
+    $("p1First").style.display = first ? "" : "none";
+    $("p1Second").style.display = first ? "none" : "";
+    const p = plant(), r = S.r.v, tEnd = S.T.v;
+    let uMin = +uMinEl.value, uMax = +uMaxEl.value;
+    if (!(uMax > uMin)) { uMax = uMin + 1; }
+
+    $("p1Diag").innerHTML = blockDiagram({
+      controller: `Kp=${fmt(S.Kp.v, 1)}  Ki=${fmt(S.Ki.v, 1)}  Kd=${fmt(S.Kd.v, 2)}`,
+      limit: `${fmt(uMin, 0)} … ${fmt(uMax, 0)}`,
+      plant: first ? `${fmt(p.K, 1)}/(${fmt(p.tau, 2)}s+1)` : `${fmt(p.k, 1)}/(${fmt(p.m, 1)}s²+${fmt(p.b, 1)}s+${fmt(p.k, 1)})`,
+      sensor: "ideal: yₘ = y"
+    });
+
+    const sim = PID.simulate({ plant: p, r, Kp: S.Kp.v, Ki: S.Ki.v, Kd: S.Kd.v, uMin, uMax, antiWindup: true, tEnd });
+    const m = PID.metrics(sim.t, sim.y, r, sim.diverged);
+    const ol = PID.openLoop(p, r / (p.K || 1), tEnd);
+
+    const d = outChart.data.datasets;
+    d[0].data = [{ x: 0, y: r }, { x: tEnd, y: r }];
+    d[1].data = PID.toXY(sim.t, sim.y);
+    d[2].data = PID.toXY(ol.t, ol.y);
+    const yf = m.settled ? m.yFinal : r;
+    d[3].data = [{ x: 0, y: 1.02 * yf }, { x: tEnd, y: 1.02 * yf }, { x: NaN, y: NaN }, { x: 0, y: 0.98 * yf }, { x: tEnd, y: 0.98 * yf }];
+    outChart.update("none");
+
+    const u = uChart.data.datasets;
+    u[0].data = PID.toXY(sim.t, sim.u);
+    u[1].data = PID.toXY(sim.t, sim.uRaw.map(v => PID.clamp(v, uMin - 2 * (uMax - uMin), uMax + 2 * (uMax - uMin))));
+    u[2].data = [{ x: 0, y: uMax }, { x: tEnd, y: uMax }, { x: NaN, y: NaN }, { x: 0, y: uMin }, { x: tEnd, y: uMin }];
+    uChart.update("none");
+
+    const uPeak = Math.max(...sim.uRaw.map(Math.abs));
+    const sat = sim.uRaw.some(v => v > uMax + 1e-9 || v < uMin - 1e-9);
+    showCards($("p1Metrics"), responseCards(m, [
+      ["Time to 63.2%", fmt(m.t63, 3) + " s", "closed-loop τ for a 1st-order loop"],
+      ["Peak |u| requested", fmt(uPeak, 2), sat ? "hits the limit" : "within the limit", sat ? "fail" : "pass"]
+    ]));
+  }
+
+  const go = throttle(update);
+  document.querySelectorAll("#p1 input, #p1 select").forEach(el => el.addEventListener("input", go));
+  const set = (kp, ki, kd) => { S.Kp.set(kp); S.Ki.set(ki); S.Kd.set(kd); };
+  $("p1Val1").addEventListener("click", () => { plantSel.value = "first"; S.K.set(1); S.tau.set(1); set(9, 0, 0); S.T.set(2); update(); });
+  $("p1Val2").addEventListener("click", () => { plantSel.value = "first"; S.K.set(1); S.tau.set(1); set(1, 1, 0); S.T.set(10); update(); });
+  $("p1PID").addEventListener("click", () => { plantSel.value = "second"; S.m.set(1); S.b.set(2); S.k.set(4); set(3, 2, 0.3); S.T.set(12); update(); });
+  $("p1Mine").addEventListener("click", () => {
+    plantSel.value = "first"; S.K.set(MY_SYSTEM.K); S.tau.set(MY_SYSTEM.tau); S.r.set(MY_SYSTEM.setpoint);
+    uMinEl.value = MY_SYSTEM.uMin; uMaxEl.value = MY_SYSTEM.uMax; S.T.set(Math.max(0.5, 8 * MY_SYSTEM.tau)); update();
+  });
+
+  makeQuiz("p1q", [
+    { q: "First-order plant, P only. You raise Kp from 1 to 9. The steady-state error will:", opts: ["Disappear completely", "Shrink, but not to zero", "Grow"], ans: 1,
+      msg: "e∞ = 1/(1 + K·Kp): 50% at Kp = 1, 10% at Kp = 9. P alone can never make it zero. Press 'P only, Kp = 9' to see it." },
+    { q: "Starting from P only (Kp = 9), you add Ki = 5. What happens to the steady-state error?", opts: ["It becomes zero", "It stays at 10%", "It doubles"], ans: 0,
+      msg: "The integrator keeps growing while any error remains, so the only steady state is e = 0." },
+    { q: "Second-order plant (m = 1, b = 2, k = 4) with Kp = 3 and Ki = 2. Adding Kd = 0.3 will make the overshoot:", opts: ["Larger", "Smaller", "Unchanged"], ans: 1,
+      msg: "D reacts to how fast the output is moving and brakes it before it passes the setpoint. Press 'Try a PID', then move Kd." },
+    { q: "Set the u limits to −2 and 2 with Kp = 9 on the first-order plant. The response will be:", opts: ["Faster", "Slower, because u is capped", "Exactly the same"], ans: 1,
+      msg: "The PID asks for u = 9 at t = 0 but only 2 is available, so the plant cannot move as fast as the linear analysis promises." }
+  ]);
+
+  update();
+})();
+
+</script>
+<script>
+/* ######################## VALIDATION CHECKS (handout §2.1) ######################## */
+/* =====================================================================
+   Validation checks from §2.1 of the handout.  Owner: TODO (name)
+   Uses fixed reference settings, independent of the sliders.
+   ===================================================================== */
+(function () {
+  const plant = { type: "first", K: 1, tau: 1 };
+  const rows = [];
+
+  // 1. P only, Kp = 9 → closed-loop τ = 0.1 s and e∞ = 10 %
+  const s1 = PID.simulate({ plant, Kp: 9, tEnd: 2 });
+  const m1 = PID.metrics(s1.t, s1.y, 1, s1.diverged);
+  rows.push(["1a. P only, Kp = 9: closed-loop τ (time to 63.2% of final value)", "0.100 s", fmt(m1.t63, 4) + " s", Math.abs(m1.t63 - 0.1) < 0.001]);
+  rows.push(["1b. P only, Kp = 9: steady-state error 1/(1 + K·Kp)", "10.00%", fmt(m1.ess, 3) + "%", Math.abs(m1.ess - 10) < 0.05]);
+
+  // 2. PI, Kp = Ki = 1 → ωn = 1 rad/s, ζ = 1
+  const f = PID.piSecondOrder(1, 1, 1, 1);
+  rows.push(["2a. PI, Kp = Ki = 1: ωn = √(K·Ki/τ) (formula)", "1.000 rad/s", fmt(f.wn, 3) + " rad/s", Math.abs(f.wn - 1) < 1e-9]);
+  rows.push(["2b. PI, Kp = Ki = 1: ζ = (1 + K·Kp)/(2√(τ·K·Ki)) (formula)", "1.000", fmt(f.zeta, 3), Math.abs(f.zeta - 1) < 1e-9]);
+  // Simulation check: ζ = 1 means no overshoot. Here the PI zero at s = −1 also cancels
+  // one of the two poles at s = −1, so the exact closed-loop step response is 1 − e^(−t).
+  const s2 = PID.simulate({ plant, Kp: 1, Ki: 1, tEnd: 10 });
+  const m2 = PID.metrics(s2.t, s2.y, 1, s2.diverged);
+  let err2 = 0; s2.t.forEach((t, i) => { err2 = Math.max(err2, Math.abs(s2.y[i] - (1 - Math.exp(-t)))); });
+  rows.push(["2c. PI, Kp = Ki = 1: simulated overshoot (ζ = 1 → none)", "0.00%", fmt(m2.overshoot, 3) + "%", m2.overshoot < 0.01]);
+  rows.push(["2d. PI, Kp = Ki = 1: RK4 vs exact 1 − e<sup>−t</sup>, largest gap", "< 0.001", err2.toExponential(1), err2 < 1e-3]);
+
+  // 3. Any PI controller → zero steady-state error for a step
+  const second = { type: "second", K: 1, m: 1, b: 2, k: 4 };
+  const cases = [[plant, 0.5, 0.5], [plant, 2, 3], [plant, 9, 20], [second, 1, 1], [second, 0.5, 2], [second, 2, 3]];
+  let worst = 0;
+  cases.forEach(([p, kp, ki]) => {
+    const s = PID.simulate({ plant: p, Kp: kp, Ki: ki, tEnd: 60 });
+    const m = PID.metrics(s.t, s.y, 1, s.diverged);
+    worst = Math.max(worst, Number.isFinite(m.ess) ? Math.abs(m.ess) : Infinity);
+  });
+  rows.push([`3. Any PI: largest |e∞| over ${cases.length} PI settings on both plants`, "0%", fmt(worst, 4) + "%", worst < 0.05]);
+
+  $("valBody").innerHTML = rows.map(r =>
+    `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="${r[3] ? "pass" : "fail"}">${r[3] ? "✓ PASS" : "✗ FAIL"}</td></tr>`).join("");
+})();
+
+</script>
+<script>
+/* ######################## P2: A slow sensor in the loop ######################## */
+/* =====================================================================
+   P2 — A slow sensor in the loop                     Owner: TODO (name)
+   ===================================================================== */
+(function () {
+  const S = {
+    ts: bindSlider("p2Ts", 2, " s"), K: bindSlider("p2K", 1), tau: bindSlider("p2Tau", 2, " s"),
+    Kp: bindSlider("p2Kp", 1), Ki: bindSlider("p2Ki", 1), Kd: bindSlider("p2Kd", 2), T: bindSlider("p2T", 0, " s")
+  };
+  const OS_CAP = 200;   // overshoot axis cap for the sweep plot (%)
+
+  const outChart = makeChart("p2Out", [
+    { label: "Setpoint r", color: COL.gray, dash: [6, 4] },
+    { label: "True output y", color: COL.cyan, width: 3 },
+    { label: "Sensor reading yₘ (what the controller sees)", color: COL.pink, width: 2, dash: [7, 4] }
+  ], "Time (s)", "Output");
+  const sweepChart = makeChart("p2Sweep", [
+    { label: "Overshoot of y", color: COL.cyan, width: 2, points: 4 },
+    { label: "Current τs", color: COL.amber, points: 8, showLine: false }
+  ], "Sensor time constant τs (s)", "Overshoot (%)", { scales: { y: { min: 0, max: OS_CAP, title: { display: true, text: "Overshoot (%), capped at 200" }, grid: GRID } } });
+
+  const params = (tauS) => ({
+    plant: { type: "first", K: S.K.v, tau: S.tau.v }, r: 1, tauS,
+    Kp: S.Kp.v, Ki: S.Ki.v, Kd: S.Kd.v, uMin: -50, uMax: 50, tEnd: S.T.v
+  });
+
+  // Routh–Hurwitz for K/(τs+1) with a PI and a sensor 1/(τs·s+1):
+  //   τ·τs·s³ + (τ+τs)·s² + (1+K·Kp)·s + K·Ki = 0
+  //   stable  ⇔  (τ+τs)(1+K·Kp) > τ·τs·K·Ki
+  function criticalTauS() {
+    const K = S.K.v, tau = S.tau.v, a = 1 + K * S.Kp.v, c = K * S.Ki.v;
+    if (S.Kd.v > 0) return { text: "Routh limit shown for PI only (set Kd = 0)." };
+    if (c <= 0) return { text: "P only with a first-order sensor is a second-order loop: it can overshoot a lot, but it never goes unstable." };
+    const den = tau * c - a;
+    if (den <= 0) return { val: Infinity, text: "With these gains the loop stays stable for any τs (Routh)." };
+    return { val: tau * a / den, text: "" };
+  }
+
+  function update() {
+    const tauS = S.ts.v, P = params(tauS);
+    $("p2Diag").innerHTML = blockDiagram({
+      controller: `Kp=${fmt(P.Kp, 1)}  Ki=${fmt(P.Ki, 1)}  Kd=${fmt(P.Kd, 2)}`,
+      limit: "±50", plant: `${fmt(P.plant.K, 1)}/(${fmt(P.plant.tau, 2)}s+1)`,
+      sensor: tauS > 0 ? `1/(${fmt(tauS, 2)}s+1)` : "ideal: yₘ = y", sensorHighlight: tauS > 0
+    });
+    const sim = PID.simulate(P);
+    const m = PID.metrics(sim.t, sim.y, 1, sim.diverged);
+    const mm = PID.metrics(sim.t, sim.ym, 1, sim.diverged);
+    const d = outChart.data.datasets;
+    d[0].data = [{ x: 0, y: 1 }, { x: P.tEnd, y: 1 }];
+    d[1].data = PID.toXY(sim.t, sim.y);
+    d[2].data = PID.toXY(sim.t, sim.ym);
+    outChart.update("none");
+
+    showCards($("p2Metrics"), responseCards(m, [
+      ["Overshoot of yₘ", fmt(mm.overshoot, 1) + "%", "what the sensor reports"],
+      ["Peak of y vs peak of yₘ", fmt(m.peak, 2) + " vs " + fmt(mm.peak, 2), "the true output peaks higher"]
+    ]));
+
+    const c = criticalTauS();
+    $("p2Theory").innerHTML = c.text ||
+      `Routh–Hurwitz: the loop starts to oscillate without decaying at <b>τs = ${fmt(c.val, 3)} s</b>. ` +
+      (Math.abs(tauS - c.val) < 0.015 ? `<span class="fail">You are right at the limit: the oscillation neither grows nor dies.</span>`
+        : tauS < c.val ? `You are at ${fmt(tauS, 2)} s, so it still decays.` : `<span class="fail">You are at ${fmt(tauS, 2)} s, past the limit, so it grows.</span>`);
+    sweep();
+    sweepChart.data.datasets[1].data = [{ x: tauS, y: Math.min(OS_CAP, m.overshoot || 0) }];
+    sweepChart.update("none");
+  }
+
+  // The sweep runs ~30 simulations, so only redo it after the slider stops.
+  const sweep = debounce(() => {
+    const pts = [], colors = [];
+    const max = +$("p2Ts").max;
+    for (let i = 0; i <= 30; i++) {
+      const ts = max * i / 30, s = PID.simulate(params(ts)), m = PID.metrics(s.t, s.y, 1, s.diverged);
+      pts.push({ x: ts, y: Math.min(OS_CAP, Number.isFinite(m.overshoot) ? m.overshoot : OS_CAP) });
+      colors.push(m.settled ? COL.cyan : COL.bad);
+    }
+    const ds = sweepChart.data.datasets[0];
+    ds.data = pts; ds.pointBackgroundColor = colors; ds.pointBorderColor = colors;
+    sweepChart.update("none");
+  }, 150);
+
+  const go = throttle(update);
+  document.querySelectorAll("#p2 input").forEach(el => el.addEventListener("input", go));
+  $("p2Fast").addEventListener("click", () => { S.ts.set(0); update(); });
+  $("p2Edge").addEventListener("click", () => {
+    const c = criticalTauS();
+    if (Number.isFinite(c.val)) S.ts.set(Math.min(+$("p2Ts").max, Math.round(c.val * 100) / 100));
+    else { S.Kp.set(4); S.Ki.set(10); S.Kd.set(0); S.K.set(1); S.tau.set(1); S.ts.set(1); }
+    S.T.set(Math.max(S.T.v, 25)); update();
+  });
+  $("p2Mine").addEventListener("click", () => {
+    S.K.set(MY_SYSTEM.K); S.tau.set(MY_SYSTEM.tau); $("p2Ts").max = Math.max(1.5, 3 * MY_SYSTEM.tau);
+    S.T.set(Math.max(2, Math.round(15 * MY_SYSTEM.tau))); update();
+  });
+
+  makeQuiz("p2q", [
+    { q: "With Kp = 4, Ki = 10 on K = 1, τ = 1 s, you slow the sensor from τs = 0 to τs = 0.3 s. The overshoot of the true output will:", opts: ["Fall", "Stay the same", "Rise sharply"], ans: 2,
+      msg: "The controller sees the output late, keeps pushing, and the plant overshoots. Move the τs slider and watch the cyan curve pass the pink one." },
+    { q: "With a slow sensor, which curve peaks higher?", opts: ["The sensor reading yₘ", "The true output y", "They peak at the same height"], ans: 1,
+      msg: "The sensor is a low-pass filter, so it smooths and shrinks the peak. The real system overshoots more than the reading suggests." },
+    { q: "Routh says the loop above oscillates without decaying at τs = 1 s. What happens at τs = 1.2 s?", opts: ["Oscillation grows: unstable", "It settles slowly", "It gets faster"], ans: 0,
+      msg: "Past the Routh limit a pair of poles has crossed into the right half-plane. Try it, and check the red points on the sweep." },
+    { q: "Your loop oscillates. What should you check first, before blaming the gains?", opts: ["The setpoint size", "The sensor time constant τs", "The plant gain K"], ans: 1,
+      msg: "That is the handout's tip: a sensor slower than the loop adds lag that no amount of fiddling with the gains fully fixes." }
+  ]);
+
+  update();
+})();
+
+</script>
+<script>activeNav();</script>
+</body>
+</html>
