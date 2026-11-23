@@ -95,28 +95,19 @@ Homework 1 showed how slow a sensor or plant is. Homework 2 shows how **feedback
 #### Landing Page: Link to the Control Section
 <!-- screenshot: the HW1 page header with the "Control (HW2) →" tab and the Homework 2 card -->
 
-#### P1: PID Playground (Output vs Setpoint, Control Signal & Live Metrics)
+#### P1
 <!-- screenshot: block diagram + output chart + control-signal chart + metric cards (e.g. after "P only, Kp = 9") -->
 
-#### P1: Validation Checks (7/7 Passed)
-<!-- screenshot: the validation table, all green -->
 
-#### P2: Slow Sensor in the Loop (True Output vs Sensor Reading)
+#### P2
 <!-- screenshot: τs around 0.3–0.5 s so the cyan and pink curves clearly separate -->
 
-#### P2: The Move to Oscillation (Overshoot vs τs Sweep & Routh–Hurwitz Limit)
-<!-- screenshot: the sweep chart with red points + the Routh sentence (press "Edge of oscillation") -->
 
-#### P3: Digital PID (Stair-Step u[k] & Digital vs Continuous Output)
-<!-- screenshot: Ts around 0.1–0.2 s so the steps are visible -->
+#### P3
+<img width="1600" height="800" alt="image" src="https://github.com/user-attachments/assets/8159a195-6e6c-4403-8890-13527be5a496" />
+<img width="1600" height="819" alt="image" src="https://github.com/user-attachments/assets/54f208bd-103a-4101-b4a8-b90213567bdf" />
 
-#### P3: Performance vs Sampling Time & Anti-Windup
-<!-- screenshot: the Ts sweep chart, and the response after "Show windup" with anti-windup OFF -->
-
-#### P3: Generated Arduino Code
-<!-- screenshot: the code panel with the Copy button -->
-
-#### P4: Tuning Challenge (Open-Loop Test, Spec & Score)
+#### P4
 <!-- screenshot: a round with 100/100 and all three parts ✓ PASS -->
 
 #### My System: Plant Model, Spec & Design Checks
@@ -124,10 +115,6 @@ Homework 1 showed how slow a sensor or plant is. Homework 2 shows how **feedback
 
 #### My System: Simulated Speed Response, PWM Command & Arduino Code
 <!-- screenshot: response chart + PWM chart (within 0–100 %) + code -->
-
-#### Mobile View
-<!-- screenshot: control.html on a phone -->
-
 
 ## 🧪 Homework 2 Validation Results (7/7 Passed)
 
