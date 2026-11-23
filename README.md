@@ -93,7 +93,7 @@ Homework 1 showed how slow a sensor or plant is. Homework 2 shows how **feedback
 <!-- TODO: under each title, drag the screenshot in (GitHub inserts the <img> line). -->
 
 #### Landing Page: Link to the Control Section
-<!-- screenshot: the HW1 page header with the "Control (HW2) →" tab and the Homework 2 card -->
+<img width="886" height="119" alt="image" src="https://github.com/user-attachments/assets/0de57a88-88b7-467c-a613-bcce10d2c0d1" />
 
 #### P1
 <img width="1600" height="800" alt="image" src="https://github.com/user-attachments/assets/7380ba30-e07c-433c-8a9b-bf7fc2c55021" />
@@ -108,7 +108,8 @@ Homework 1 showed how slow a sensor or plant is. Homework 2 shows how **feedback
 <img width="1600" height="819" alt="image" src="https://github.com/user-attachments/assets/54f208bd-103a-4101-b4a8-b90213567bdf" />
 
 #### P4
-<!-- screenshot: a round with 100/100 and all three parts ✓ PASS -->
+<img width="1600" height="741" alt="image" src="https://github.com/user-attachments/assets/bb309899-3d58-4630-b4aa-6556d5e706ca" />
+<img width="1600" height="744" alt="image" src="https://github.com/user-attachments/assets/dd390d85-323a-428b-af51-8358004fecac" />
 
 #### My System: Plant Model, Spec & Design Checks
 <img width="845" height="497" alt="image" src="https://github.com/user-attachments/assets/9b3db087-af98-463d-8fde-2b0c81ab5d50" />
@@ -241,14 +242,21 @@ The application includes live programmatic checks directly implementing the lect
 ```text
 encs4380-dynamics-group-3/
 │
-├── index.html               # HW1 toolkit (Modules 1–4 + Bonus) + link to the Control section
-├── control.html             # HW2 Control section: P1 PID Playground, validation, P2 Slow Sensor, P3 Digital PID, P4 Tuning Challenge
-├── my-system.html           # HW2 "My System" page: our plant, spec, gains, response, Arduino code
+├── index.html               # HW1 toolkit (Modules 1–4 + Bonus) + link to Control
+├── control.html             # HW2: P1 Playground, Validation, P2 Sensor, P3 Digital, P4 Challenge
+├── my-system.html           # HW2 "My System": our plant, spec, gains, response, Arduino code
 ├── README.md                # Project documentation, team roles, formulas & screenshots
-├── Module1_Testing.zip      # Module 1 time response test logs & verification data
-├── Module2_Testing.zip      # Module 2 frequency response calculations & tests
-├── Module3_Test_Cases.pdf   # Module 3 second-order dynamics & RK4 validation report
-└── Bonus_Testing.zip        # Bonus superposition distortion & Euler/RK4 stability tests
+│
+├── Module1_Testing.zip      # HW1 Module 1: time response test logs & verification data
+├── Module2_Testing.zip      # HW1 Module 2: frequency response calculations & tests
+├── Module3_Test_Cases.pdf   # HW1 Module 3: second-order dynamics & RK4 validation report
+├── Module4_Testing.zip      # HW1 Module 4: "Guess the Sensor" challenge tests
+├── Bonus_Testing.zip        # HW1 Bonus: superposition distortion & Euler/RK4 stability tests
+│
+├── P1TestCases.zip          # HW2 P1: PID playground & validation-check test cases
+├── P2TestCases.zip          # HW2 P2: slow-sensor / oscillation test cases
+├── P3TestCases.zip          # HW2 P3: digital PID, sampling-time & anti-windup test cases
+└── P4TestCases.zip          # HW2 P4: tuning-challenge test cases
 ```
 
 ---
