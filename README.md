@@ -75,17 +75,19 @@ Homework 1 showed how slow a sensor or plant is. Homework 2 shows how **feedback
 * **P3:** Large $T_s$ acts like a delay of about $T_s/2$; the loop above breaks down around $T_s \approx 0.4$ s. With $|u| \le 2$, switching anti-windup **off** raises the overshoot from about $2\%$ to about $28\%$.
 * **P4:** The settling-time limit is set from a gain search, so every random plant is guaranteed to be tunable. Score: overshoot $\le 10\%$ (35 pts), settling time (35 pts), $|e_\infty| \le 1\%$ (30 pts).
 
-### ⚙️ Our System: TODO (e.g. micromouse drive motor, speed loop)
+### ⚙️ Our System: Micromouse Drive Motor (Wheel Speed Loop)
 
-<!-- TODO: replace every value below with your measured numbers -->
+> **Estimated plant.** Our motors have not arrived yet, so $K$ comes from the motor's listed specification and $\tau$ from a published measurement of a comparable motor. Both will be replaced by our own PWM step test (`step_test_esp32.ino`, logged with the encoder) as soon as the parts arrive.
+
 | Item | Value | Source |
 | :--- | :---: | :--- |
-| Plant model | $G(s) = \dfrac{K}{\tau s + 1}$ | First-order fit of a PWM step test |
-| Gain $K$ | TODO (mm/s per % PWM) | TODO: e.g. PWM step 0 → 60 %, encoder logged at 200 Hz |
-| Time constant $\tau$ | TODO s | TODO: time to 63.2 % of the final speed |
-| Spec | $\zeta =$ TODO, $t_s \le$ TODO s, PWM within 0–100 % | TODO: one sentence on why this matters for the project |
-| Final gains | $K_p =$ TODO, $K_i =$ TODO, $K_d = 0$ | Pole placement: $K_p = \frac{2\zeta\omega_n\tau - 1}{K}$, $K_i = \frac{\omega_n^2\tau}{K}$ |
-| Arduino sampling time | $T_s =$ TODO s | ≥ 10 samples per rise time |
+| Hardware | N20 DC motor with magnetic encoder (6 V, 530 RPM), TB6612FNG driver, ESP32, 9 V battery, 43 mm N20 wheel | Our parts list |
+| Plant model | $G(s) = \dfrac{K}{\tau s + 1}$, input PWM (%), output wheel speed (mm/s) | First-order motor model from the lecture |
+| Gain $K$ | $17.9$ (mm/s) per % PWM | 530 RPM at 6 V, scaled to 9 V: 795 RPM; $\pi \times 43\text{ mm} \times 795/60 = 1790$ mm/s at 100 % PWM |
+| Time constant $\tau$ | $0.035$ s (estimate) | Measured mechanical time constant of a comparable small 6 V DC gearmotor (Northwestern University mechatronics motor data sheet); the N20 listing gives no $\tau$ |
+| Spec | $\zeta = 0.7$, $t_s \le 0.2$ s, cruise speed 600 mm/s, PWM within 0–100 % | One 18.2 cm cell takes about 0.3 s at 600 mm/s, so the speed must settle well within one cell; small overshoot keeps the mouse straight in a 16.8 cm corridor on a slick floor; I action removes the speed error caused by the 9 V battery sagging |
+| Final gains | $K_p = 0.0223$ %/(mm/s), $K_i = 1.596$ s⁻¹, $K_d = 0$ | Pole placement: $\omega_n = \frac{4}{\zeta t_s} = 28.6$ rad/s, $K_p = \frac{2\zeta\omega_n\tau - 1}{K}$, $K_i = \frac{\omega_n^2\tau}{K}$ |
+| Simulated response | Overshoot 5.0 %, settling 0.189 s, zero steady-state error, PWM 18–38 % | Digital PI at $T_s = 5$ ms (200 Hz), 13.5 samples per rise time |
 
 ### 📸 Homework 2 Screenshots
 <!-- TODO: under each title, drag the screenshot in (GitHub inserts the <img> line). -->
