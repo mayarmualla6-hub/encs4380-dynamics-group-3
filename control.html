@@ -82,6 +82,9 @@ textarea{width:100%;min-height:130px;padding:10px;border-radius:7px;border:1px s
   <a href="#p1" class="active">P1 PID Playground</a>
   <a href="#validation">Validation</a>
   <a href="#p2">P2 Slow Sensor</a>
+  <a href="#p3">P3 Digital PID</a>
+  <a href="#p4">P4 Tuning Challenge</a>
+  <a href="my-system.html" style="color:var(--amber)">My System →</a>
 </nav>
 
 <main>
@@ -264,8 +267,144 @@ textarea{width:100%;min-height:130px;padding:10px;border-radius:7px;border:1px s
   </div>
 </section>
 
-<section id="soon">
-  <div class="note">P3 (Digital PID), P4 (Tuning challenge) and the My System page are coming in release v2.0.</div>
+<!-- ================= P3: DIGITAL PID ================= -->
+<section id="p3">
+  <h2 class="section-title">P3: Digital PID</h2>
+  <p class="description">
+    On an Arduino the controller only runs once every T<sub>s</sub> seconds and holds u constant in between:
+    <span class="eqline">u[k] = K<sub>p</sub> e[k] + K<sub>i</sub> T<sub>s</sub> Σ<sub>j=0..k</sub> e[j] + K<sub>d</sub> (e[k] − e[k−1]) / T<sub>s</sub></span>.
+    Start with a small T<sub>s</sub> and raise it until the response breaks.
+  </p>
+  <div class="panel" id="p3Diag"></div>
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h3>Sampling and saturation</h3>
+        <label for="p3Ts">Sampling time T<sub>s</sub> <span class="value" id="p3TsV"></span></label>
+        <input type="range" id="p3Ts" min="0.005" max="0.6" step="0.005" value="0.05">
+        <label class="check"><input type="checkbox" id="p3AW" checked> Anti-windup (clamping)</label>
+        <div class="row2">
+          <div><label for="p3UMin">u lower limit</label><input type="number" id="p3UMin" value="-3" step="0.5"></div>
+          <div><label for="p3UMax">u upper limit</label><input type="number" id="p3UMax" value="3" step="0.5"></div>
+        </div>
+        <label for="p3R">Setpoint r <span class="value" id="p3RV"></span></label>
+        <input type="range" id="p3R" min="0.5" max="5" step="0.5" value="1">
+      </div>
+      <div class="panel">
+        <h3>Plant and gains</h3>
+        <label for="p3K">Plant gain K <span class="value" id="p3KV"></span></label>
+        <input type="range" id="p3K" min="0.1" max="5" step="0.1" value="1">
+        <label for="p3Tau">Plant time constant τ <span class="value" id="p3TauV"></span></label>
+        <input type="range" id="p3Tau" min="0.05" max="10" step="0.05" value="1">
+        <label for="p3Kp">K<sub>p</sub> <span class="value" id="p3KpV"></span></label>
+        <input type="range" id="p3Kp" min="0" max="20" step="0.1" value="4">
+        <label for="p3Ki">K<sub>i</sub> <span class="value" id="p3KiV"></span></label>
+        <input type="range" id="p3Ki" min="0" max="30" step="0.1" value="10">
+        <label for="p3Kd">K<sub>d</sub> <span class="value" id="p3KdV"></span></label>
+        <input type="range" id="p3Kd" min="0" max="2" step="0.01" value="0">
+        <label for="p3T">Simulation window <span class="value" id="p3TV"></span></label>
+        <input type="range" id="p3T" min="1" max="30" step="0.5" value="6">
+        <div class="btnrow">
+          <button class="alt" id="p3Windup">Show windup</button>
+          <button class="alt" id="p3Mine">Load my plant</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Predict, Then Check</h3>
+        <p class="hint" id="p3qText"></p>
+        <div id="p3qOpts"></div>
+        <button id="p3qCheck">Check Prediction</button>
+        <button id="p3qNext" class="alt">Next Question</button>
+        <div class="result" id="p3qRes" aria-live="polite"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h3>Output: digital vs continuous PID</h3>
+        <div class="chart-box"><canvas id="p3Out"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Stair-step control signal u[k]</h3>
+        <div class="chart-box sm"><canvas id="p3U"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Live performance</h3>
+        <div class="metrics" id="p3Metrics"></div>
+      </div>
+      <div class="panel">
+        <h3>How performance falls as T<sub>s</sub> grows</h3>
+        <p class="hint">Each point is a full digital simulation with the current gains. The dashed amber line is your current T<sub>s</sub>.</p>
+        <div class="chart-box sm"><canvas id="p3Sweep"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Arduino loop for the current gains</h3>
+    <p class="hint"><code>pidStep()</code> below is the same algorithm, line for line, as the digital simulation above (<code>digitalPidStep</code> in <code>js/pid-core.js</code>).</p>
+    <button id="p3Copy" style="width:auto;padding:10px 22px">📋 Copy code</button>
+    <pre class="code" id="p3Code" style="margin-top:12px"></pre>
+  </div>
+</section>
+
+<!-- ================= P4: TUNING CHALLENGE ================= -->
+<section id="p4">
+  <h2 class="section-title">P4: Tuning Challenge</h2>
+  <p class="description">
+    A hidden plant has been picked at random, the same way Homework 1's Module 4 picked a sensor.
+    Use the open-loop test to work out what it is, then tune the PID to meet the spec.
+  </p>
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h3>The spec</h3>
+        <div id="p4Spec" class="hint"></div>
+        <div class="btnrow">
+          <button id="p4New">🎲 New hidden plant</button>
+          <button class="alt" id="p4Reveal">Reveal the plant</button>
+        </div>
+        <div id="p4RevealBox" class="result"></div>
+      </div>
+      <div class="panel">
+        <h3>Your gains</h3>
+        <label for="p4Kp">K<sub>p</sub> <span class="value" id="p4KpV"></span></label>
+        <input type="range" id="p4Kp" min="0" max="20" step="0.05" value="1">
+        <label for="p4Ki">K<sub>i</sub> <span class="value" id="p4KiV"></span></label>
+        <input type="range" id="p4Ki" min="0" max="30" step="0.05" value="0">
+        <label for="p4Kd">K<sub>d</sub> <span class="value" id="p4KdV"></span></label>
+        <input type="range" id="p4Kd" min="0" max="3" step="0.01" value="0">
+      </div>
+      <div class="panel">
+        <h3>Score</h3>
+        <div class="score" id="p4Score">0</div>
+        <p class="hint" id="p4Best"></p>
+      </div>
+      <div class="panel">
+        <h3>Predict, Then Check</h3>
+        <p class="hint" id="p4qText"></p>
+        <div id="p4qOpts"></div>
+        <button id="p4qCheck">Check Prediction</button>
+        <button id="p4qNext" class="alt">Next Question</button>
+        <div class="result" id="p4qRes" aria-live="polite"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h3>Open-loop test of the hidden plant (u = 1 step, noisy sensor)</h3>
+        <div class="chart-box sm"><canvas id="p4Open"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Closed-loop response against the spec</h3>
+        <div class="chart-box"><canvas id="p4Out"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Pass or fail, part by part</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Spec</th><th>Limit</th><th>Yours</th><th>Points</th><th>Result</th></tr></thead>
+          <tbody id="p4Table"></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 </main>
@@ -743,6 +882,15 @@ function bindSlider(id, digits, unit = "") {
   return { el, get v() { return +el.value; }, set(v) { if (+el.max < v) el.max = v; if (+el.min > v) el.min = v; el.value = v; show(); } };
 }
 
+
+/* Our designed PI gains for MY_SYSTEM (same pole placement as the My System page) */
+function myDesignedGains() {
+  const z = MY_SYSTEM.zeta || 0.7, wn = 4 / (z * (MY_SYSTEM.tsTarget || 3 * MY_SYSTEM.tau));
+  return PID.piGainsFor(MY_SYSTEM.K, MY_SYSTEM.tau, z, wn);
+}
+/* Our gains are much smaller than 0.1, so let the gain sliders move freely */
+function fineSteps(...ids) { ids.forEach(id => { $(id).step = "any"; }); }
+
 /* Active-nav highlighting, same as Homework 1 */
 function activeNav() {
   const links = [...document.querySelectorAll("nav a[href^='#']")];
@@ -754,7 +902,7 @@ function activeNav() {
 
 </script>
 <script>
-/* ######################## MY SYSTEM: our plant numbers (placeholder until measured) ######################## */
+/* ######################## MY SYSTEM DATA: our plant numbers (edit here) ######################## */
 /* =====================================================================
    my-system-data.js — YOUR project's plant, in one place.
 
@@ -766,17 +914,20 @@ function activeNav() {
    !!! datasheet numbers before submitting, and cite the source below.
    ===================================================================== */
 const MY_SYSTEM = {
-  name: "Micromouse left drive motor (speed loop)",   // TODO: your actuator
-  K: 1.0,            // TODO: steady-state gain, output units per % PWM
-  tau: 0.10,         // TODO: time constant in seconds
-  outputUnits: "mm/s",                               // TODO: units of y
-  inputUnits: "% PWM",                               // u is the PWM duty cycle
+  name: "Micromouse N20 drive motor with encoder, TB6612FNG driver, 9 V battery (wheel speed loop)",
+  K: 17.9,           // (mm/s) per % PWM, from the motor listing, see source
+  tau: 0.035,        // s, estimate, see source
+  outputUnits: "mm/s",
+  inputUnits: "% PWM",
   uMin: 0,           // PWM lower limit (%)
   uMax: 100,         // PWM upper limit (%)
-  setpoint: 50,      // TODO: a typical target speed, in outputUnits
-  Ts: 0.01,          // TODO: your control-loop sampling time on the Arduino (s)
-  isPlaceholder: true,   // set to false once K and tau are your real numbers
-  source: "TODO: e.g. 'PWM step 0 → 60 % on 12 Nov 2026, encoder logged at 200 Hz, fitted on the My system page'"
+  setpoint: 600,     // mm/s cruise speed: one 18.2 cm cell in about 0.3 s, at only ~34 % PWM
+  zeta: 0.7,         // damping-ratio spec
+  tsTarget: 0.2,     // s, settling-time spec (well below the ~0.3 s to cross one cell)
+  Ts: 0.005,         // s, control-loop sampling time on the ESP32 (200 Hz)
+  isPlaceholder: false,
+  isEstimate: true,  // set to false once K and tau come from our own step test
+  source: "ESTIMATE, not measured: our motors have not arrived yet. K: our motor is listed as 'N20 DC Motor with Magnetic Encoder, 6V 530 RPM' (no-load). Scaled linearly to our 9 V supply that is 530 x 9/6 = 795 RPM. With the standard 43 mm N20 wheel: pi x 43 mm x 795/60 = 1790 mm/s at 100 % PWM, so K = 17.9 (mm/s) per % PWM. tau: the N20 listing gives no time constant, so we use 35 ms, the measured mechanical time constant of a comparable small 6 V DC gearmotor (Northwestern University mechatronics motor data sheet, hades.mech.northwestern.edu). Both numbers will be replaced by our own PWM step test (step_test_esp32.ino) as soon as the motors arrive."
 };
 
 </script>
@@ -861,7 +1012,8 @@ const MY_SYSTEM = {
   $("p1PID").addEventListener("click", () => { plantSel.value = "second"; S.m.set(1); S.b.set(2); S.k.set(4); set(3, 2, 0.3); S.T.set(12); update(); });
   $("p1Mine").addEventListener("click", () => {
     plantSel.value = "first"; S.K.set(MY_SYSTEM.K); S.tau.set(MY_SYSTEM.tau); S.r.set(MY_SYSTEM.setpoint);
-    uMinEl.value = MY_SYSTEM.uMin; uMaxEl.value = MY_SYSTEM.uMax; S.T.set(Math.max(0.5, 8 * MY_SYSTEM.tau)); update();
+    const g = myDesignedGains(); fineSteps("p1Kp", "p1Ki", "p1Kd"); set(g.Kp, g.Ki, 0);
+    uMinEl.value = MY_SYSTEM.uMin; uMaxEl.value = MY_SYSTEM.uMax; S.T.set(Math.max(0.5, 2 * MY_SYSTEM.tsTarget)); update();
   });
 
   makeQuiz("p1q", [
@@ -1018,7 +1170,8 @@ const MY_SYSTEM = {
   });
   $("p2Mine").addEventListener("click", () => {
     S.K.set(MY_SYSTEM.K); S.tau.set(MY_SYSTEM.tau); $("p2Ts").max = Math.max(1.5, 3 * MY_SYSTEM.tau);
-    S.T.set(Math.max(2, Math.round(15 * MY_SYSTEM.tau))); update();
+    const g = myDesignedGains(); fineSteps("p2Kp", "p2Ki", "p2Kd"); S.Kp.set(g.Kp); S.Ki.set(g.Ki); S.Kd.set(0);
+    S.ts.set(0); S.T.set(2); update();
   });
 
   makeQuiz("p2q", [
@@ -1033,6 +1186,262 @@ const MY_SYSTEM = {
   ]);
 
   update();
+})();
+
+</script>
+<script>
+/* ######################## P3: Digital PID ######################## */
+/* =====================================================================
+   P3 — Digital PID                                   Owner: TODO (name)
+   ===================================================================== */
+(function () {
+  const S = {
+    Ts: bindSlider("p3Ts", 3, " s"), r: bindSlider("p3R", 1), K: bindSlider("p3K", 1), tau: bindSlider("p3Tau", 2, " s"),
+    Kp: bindSlider("p3Kp", 1), Ki: bindSlider("p3Ki", 1), Kd: bindSlider("p3Kd", 2), T: bindSlider("p3T", 1, " s")
+  };
+  const awEl = $("p3AW"), uMinEl = $("p3UMin"), uMaxEl = $("p3UMax");
+
+  const outChart = makeChart("p3Out", [
+    { label: "Setpoint r", color: COL.gray, dash: [6, 4] },
+    { label: "Output y, digital PID", color: COL.cyan, width: 3 },
+    { label: "Output y, continuous PID (Ts → 0)", color: COL.amber, width: 1.5, dash: [5, 4] }
+  ], "Time (s)", "Output");
+  const uChart = makeChart("p3U", [
+    { label: "u[k] (held between samples)", color: COL.cyan, width: 2, stepped: true },
+    { label: "Samples", color: COL.pink, points: 2.5, showLine: false },
+    { label: "Limits", color: COL.amber, dash: [6, 4], width: 1.5 }
+  ], "Time (s)", "Control signal u");
+  const sweepChart = makeChart("p3Sweep", [
+    { label: "Overshoot (%)", color: COL.cyan, width: 2, points: 3 },
+    { label: "Settling time (s)", color: COL.pink, width: 2, points: 3, axis: "y1" },
+    { label: "Current Ts", color: COL.amber, dash: [5, 4], width: 2 }
+  ], "Sampling time Ts (s, log scale)", "Overshoot (%)", {
+    xLog: true,
+    scales: {
+      y: { min: 0, title: { display: true, text: "Overshoot (%)" }, grid: GRID },
+      y1: { position: "right", min: 0, title: { display: true, text: "Settling time (s)" }, grid: { drawOnChartArea: false } }
+    }
+  });
+
+  function params(Ts) {
+    let uMin = +uMinEl.value, uMax = +uMaxEl.value;
+    if (!(uMax > uMin)) uMax = uMin + 1;
+    return { plant: { type: "first", K: S.K.v, tau: S.tau.v }, r: S.r.v, Kp: S.Kp.v, Ki: S.Ki.v, Kd: S.Kd.v,
+      Ts, uMin, uMax, antiWindup: awEl.checked, tEnd: S.T.v };
+  }
+
+  function update() {
+    const P = params(S.Ts.v);
+    $("p3Diag").innerHTML = blockDiagram({
+      controller: `Ts=${fmt(P.Ts, 3)} s  ${P.antiWindup ? "anti-windup ON" : "anti-windup OFF"}`,
+      limit: `${fmt(P.uMin, 1)} … ${fmt(P.uMax, 1)}`, plant: `${fmt(P.plant.K, 1)}/(${fmt(P.plant.tau, 2)}s+1)`,
+      sensor: "sampled every Ts", digital: true
+    });
+    const dig = PID.simulateDigital(P);
+    const cont = PID.simulate(P);
+    const m = PID.metrics(dig.t, dig.y, P.r, dig.diverged);
+    const mc = PID.metrics(cont.t, cont.y, P.r, cont.diverged);
+
+    const d = outChart.data.datasets;
+    d[0].data = [{ x: 0, y: P.r }, { x: P.tEnd, y: P.r }];
+    d[1].data = PID.toXY(dig.t, dig.y);
+    d[2].data = PID.toXY(cont.t, cont.y);
+    outChart.update("none");
+
+    const u = uChart.data.datasets;
+    const stair = PID.toXY(dig.tk, dig.uk);
+    if (stair.length) stair.push({ x: Math.min(P.tEnd, dig.tk[dig.tk.length - 1] + P.Ts), y: dig.uk[dig.uk.length - 1] });
+    u[0].data = stair;
+    u[1].data = dig.tk.length <= 400 ? PID.toXY(dig.tk, dig.uk) : [];
+    u[2].data = [{ x: 0, y: P.uMax }, { x: P.tEnd, y: P.uMax }, { x: NaN, y: NaN }, { x: 0, y: P.uMin }, { x: P.tEnd, y: P.uMin }];
+    uChart.update("none");
+
+    const samplesInRise = Number.isFinite(mc.rise) ? mc.rise / P.Ts : NaN;
+    showCards($("p3Metrics"), responseCards(m, [
+      ["Continuous PID, for reference", `${fmt(mc.overshoot, 1)}% OS`, mc.settled ? `settles in ${fmt(mc.settling, 2)} s` : "not settled"],
+      ["Samples per rise time", fmt(samplesInRise, 1), samplesInRise >= 10 ? "≥ 10: Ts is small enough" : "< 10: Ts is too coarse",
+        samplesInRise >= 10 ? "pass" : "fail"]
+    ]));
+
+    $("p3Code").textContent = PID.arduinoCode({ Kp: P.Kp, Ki: P.Ki, Kd: P.Kd, Ts: P.Ts, uMin: P.uMin, uMax: P.uMax, antiWindup: P.antiWindup, setpoint: P.r });
+    sweep();
+  }
+
+  const sweep = debounce(() => {
+    const os = [], st = [], colors = [], all = PID.logspace(0.005, 0.6, 22);
+    all.forEach(Ts => {
+      const P = params(Ts), s = PID.simulateDigital(P), m = PID.metrics(s.t, s.y, P.r, s.diverged);
+      os.push({ x: Ts, y: Math.min(150, Number.isFinite(m.overshoot) ? m.overshoot : 150) });
+      st.push({ x: Ts, y: m.settled ? m.settling : NaN });
+      colors.push(m.settled ? COL.cyan : COL.bad);
+    });
+    const ds = sweepChart.data.datasets;
+    ds[0].data = os; ds[0].pointBackgroundColor = colors; ds[0].pointBorderColor = colors;
+    ds[1].data = st;
+    const top = Math.max(10, ...os.map(p => p.y)) * 1.05;
+    ds[2].data = [{ x: S.Ts.v, y: 0 }, { x: S.Ts.v, y: top }];
+    sweepChart.update("none");
+  }, 150);
+
+  const go = throttle(update);
+  document.querySelectorAll("#p3 input").forEach(el => el.addEventListener("input", go));
+  $("p3Copy").addEventListener("click", e => copyText($("p3Code").textContent, e.currentTarget));
+  $("p3Windup").addEventListener("click", () => {
+    S.K.set(1); S.tau.set(1); S.Kp.set(4); S.Ki.set(10); S.Kd.set(0); S.Ts.set(0.02); S.r.set(1); S.T.set(6);
+    uMinEl.value = -2; uMaxEl.value = 2; awEl.checked = false; update();
+  });
+  $("p3Mine").addEventListener("click", () => {
+    S.K.set(MY_SYSTEM.K); S.tau.set(MY_SYSTEM.tau); S.r.set(MY_SYSTEM.setpoint); S.Ts.set(MY_SYSTEM.Ts);
+    const g = myDesignedGains(); fineSteps("p3Kp", "p3Ki", "p3Kd"); S.Kp.set(g.Kp); S.Ki.set(g.Ki); S.Kd.set(0);
+    uMinEl.value = MY_SYSTEM.uMin; uMaxEl.value = MY_SYSTEM.uMax; S.T.set(1); update();
+  });
+
+  makeQuiz("p3q", [
+    { q: "With Kp = 4, Ki = 10 on K = 1, τ = 1 s, you raise Ts from 0.05 s to 0.4 s. The response will:", opts: ["Stay the same", "Get worse and start to oscillate", "Get faster and better"], ans: 1,
+      msg: "Holding u for a whole Ts acts like a delay of about Ts/2. A delay eats phase margin, so a big enough Ts breaks the loop. Watch the sweep plot." },
+    { q: "Press 'Show windup' (u limited to ±2, anti-windup OFF). Now tick anti-windup ON. The overshoot will:", opts: ["Grow", "Drop a lot", "Not change"], ans: 1,
+      msg: "Without anti-windup the error sum keeps growing while u is stuck at the limit, and it has to be 'unwound' by overshooting. Clamping stops it from piling up." },
+    { q: "Rule of thumb: how many samples should fit inside the closed-loop rise time?", opts: ["About 1", "About 10 or more", "It does not matter"], ans: 1,
+      msg: "About 10 or more samples per rise time keeps the digital loop close to the continuous one. The 'Samples per rise time' card checks this live." },
+    { q: "In the code, why is the derivative term zero on the very first sample?", opts: ["To save CPU time", "There is no e[k−1] yet, so it would cause a huge kick", "Arduino cannot divide by Ts"], ans: 1,
+      msg: "With e[−1] = 0 the first step would see (1 − 0)/Ts, which is a huge spike. The firstSample flag skips it." }
+  ]);
+
+  update();
+})();
+
+</script>
+<script>
+/* ######################## P4: Tuning challenge ######################## */
+/* =====================================================================
+   P4 — Tuning challenge                              Owner: TODO (name)
+   A hidden random plant (as in Homework 1, Module 4) and a spec.
+   ===================================================================== */
+(function () {
+  const S = { Kp: bindSlider("p4Kp", 2), Ki: bindSlider("p4Ki", 2), Kd: bindSlider("p4Kd", 2) };
+  const U_LIM = 5;                       // actuator limit |u| ≤ 5, part of the spec
+  const SPEC = { os: 10, ess: 1 };       // overshoot ≤ 10 %, |e∞| ≤ 1 %
+  const POINTS = { os: 35, ts: 35, ess: 30 };
+  let game = null, best = 0, rounds = 0;
+
+  const openChart = makeChart("p4Open", [
+    { label: "Measured y (noisy), u = 1 from t = 0", color: COL.cyan, width: 2 }
+  ], "Time (s)", "Output");
+  const outChart = makeChart("p4Out", [
+    { label: "Setpoint r = 1", color: COL.gray, dash: [6, 4] },
+    { label: "Your closed-loop y", color: COL.cyan, width: 3 },
+    { label: "Overshoot limit (1.10)", color: COL.bad, dash: [4, 4], width: 1.5 },
+    { label: "±2% band", color: COL.muted, dash: [2, 5], width: 1 },
+    { label: "Settling-time limit", color: COL.amber, dash: [6, 4], width: 2 }
+  ], "Time (s)", "Output");
+
+  const rnd = (a, b, d = 2) => +(a + Math.random() * (b - a)).toFixed(d);
+
+  function randomPlant() {
+    if (Math.random() < 0.55) {
+      const p = { type: "first", K: rnd(0.5, 3), tau: rnd(0.4, 2.4) };
+      p.olSettle = 3.91 * p.tau; p.window = 8 * p.tau;            // 2 % settling of e^(−t/τ)
+      return p;
+    }
+    const zeta = rnd(0.15, 0.65), wn = rnd(1.5, 4.5), K = rnd(0.5, 2);
+    const p = Object.assign(PID.secondFromZetaWn(K, zeta, wn), { zeta, wn });
+    p.olSettle = 4 / (zeta * wn); p.window = Math.max(8 / wn, 4 / (zeta * wn));
+    return p;
+  }
+
+  function score(p, Kp, Ki, Kd, tEnd) {
+    const s = PID.simulate({ plant: p, r: 1, Kp, Ki, Kd, uMin: -U_LIM, uMax: U_LIM, tEnd });
+    return { s, m: PID.metrics(s.t, s.y, 1, s.diverged) };
+  }
+
+  // Make sure the spec can be met: search a coarse grid of gains inside the
+  // slider ranges, then set the settling limit with some slack.
+  function achievable(p) {
+    let bestT = Infinity;
+    const kps = PID.logspace(0.2 / p.K, Math.min(20, 20 / p.K), 6);
+    const kis = PID.logspace(0.2 / p.K, Math.min(30, 30 / p.K), 6);
+    const kds = p.type === "first" ? [0] : [0, 0.1 / p.K, 0.4 / p.K, Math.min(3, 1.2 / p.K)];
+    for (const kp of kps) for (const ki of kis) for (const kd of kds) {
+      const { m } = score(p, kp, ki, kd, p.window);
+      if (m.settled && m.overshoot <= SPEC.os && Math.abs(m.ess) <= SPEC.ess && m.settlingToR < bestT) bestT = m.settlingToR;
+    }
+    return bestT;
+  }
+
+  function newGame() {
+    $("p4Spec").innerHTML = "Generating a plant and checking that the spec can be met…";
+    $("p4RevealBox").textContent = "";
+    setTimeout(() => {
+      let p, bestT;
+      for (let tries = 0; tries < 6; tries++) { p = randomPlant(); bestT = achievable(p); if (Number.isFinite(bestT)) break; }
+      const tsLimit = Math.ceil(10 * Math.max(1.3 * bestT, 0.5 * p.olSettle)) / 10;
+      game = { p, tsLimit, tEnd: Math.max(p.window, 2.5 * tsLimit) };
+      best = 0; rounds++;
+      $("p4Spec").innerHTML =
+        `<b>Round ${rounds}.</b> Step the setpoint from 0 to 1 and meet all three:<br>
+         • Overshoot ≤ <b>${SPEC.os}%</b> (${POINTS.os} pts)<br>
+         • Settling time (±2%) ≤ <b>${fmt(tsLimit, 1)} s</b> (${POINTS.ts} pts)<br>
+         • Steady-state error |e∞| ≤ <b>${SPEC.ess}%</b> (${POINTS.ess} pts)<br>
+         The actuator is limited to |u| ≤ ${U_LIM}. The plant alone needs about ${fmt(p.olSettle, 1)} s to settle,
+         so the limit is roughly twice as fast as that.`;
+      // Open-loop identification test, noisy like Module 4
+      const ol = PID.openLoop(p, 1, Math.max(p.window, 5 * (p.tau || 0)), 250);
+      openChart.data.datasets[0].data = ol.t.map((t, i) => ({ x: t, y: ol.y[i] + (Math.random() - 0.5) * 0.06 * p.K }));
+      openChart.update("none");
+      S.Kp.set(1); S.Ki.set(0); S.Kd.set(0);
+      update();
+    }, 30);
+  }
+
+  function update() {
+    if (!game) return;
+    const { p, tsLimit, tEnd } = game;
+    const { s, m } = score(p, S.Kp.v, S.Ki.v, S.Kd.v, tEnd);
+    const d = outChart.data.datasets;
+    d[0].data = [{ x: 0, y: 1 }, { x: tEnd, y: 1 }];
+    d[1].data = PID.toXY(s.t, s.y);
+    d[2].data = [{ x: 0, y: 1 + SPEC.os / 100 }, { x: tEnd, y: 1 + SPEC.os / 100 }];
+    d[3].data = [{ x: 0, y: 1.02 }, { x: tEnd, y: 1.02 }, { x: NaN, y: NaN }, { x: 0, y: 0.98 }, { x: tEnd, y: 0.98 }];
+    d[4].data = [{ x: tsLimit, y: 0 }, { x: tsLimit, y: 1.3 }];
+    outChart.update("none");
+
+    const okOS = m.settled && m.overshoot <= SPEC.os;
+    const okTs = m.settled && m.settlingToR <= tsLimit;   // must settle into ±2 % of r itself
+    const okE = m.settled && Math.abs(m.ess) <= SPEC.ess;
+    const rows = [
+      ["Overshoot", `≤ ${SPEC.os}%`, m.settled ? fmt(m.overshoot, 1) + "%" : "not settled", okOS, POINTS.os],
+      ["Settling time (±2% of r)", `≤ ${fmt(tsLimit, 1)} s`, !m.settled ? "not settled" : Number.isFinite(m.settlingToR) ? fmt(m.settlingToR, 2) + " s" : "never within ±2% of r", okTs, POINTS.ts],
+      ["Steady-state error", `≤ ${SPEC.ess}%`, m.settled ? fmt(Math.abs(m.ess), 2) + "%" : "not settled", okE, POINTS.ess]
+    ];
+    $("p4Table").innerHTML = rows.map(r =>
+      `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3] ? r[4] : 0} / ${r[4]}</td><td class="${r[3] ? "pass" : "fail"}">${r[3] ? "✓ PASS" : "✗ FAIL"}</td></tr>`).join("");
+    const total = rows.reduce((a, r) => a + (r[3] ? r[4] : 0), 0);
+    best = Math.max(best, total);
+    $("p4Score").textContent = total + " / 100";
+    $("p4Best").textContent = `Best this round: ${best} / 100${total === 100 ? "  🎉 Spec met!" : ""}`;
+  }
+
+  $("p4Reveal").addEventListener("click", () => {
+    if (!game) return;
+    const p = game.p;
+    $("p4RevealBox").innerHTML = p.type === "first"
+      ? `First order: K = ${p.K}, τ = ${p.tau} s, so G(s) = ${p.K}/(${p.tau}s + 1)`
+      : `Second order: K = ${p.K}, ζ = ${p.zeta}, ωn = ${p.wn} rad/s, so G(s) = ${p.K}·${fmt(p.k, 2)}/(s² + ${fmt(p.b, 2)}s + ${fmt(p.k, 2)})`;
+  });
+  $("p4New").addEventListener("click", newGame);
+  const go = throttle(update);
+  document.querySelectorAll("#p4 input").forEach(el => el.addEventListener("input", go));
+
+  makeQuiz("p4q", [
+    { q: "Your response meets the overshoot and settling limits but ends at 0.95. Which gain fixes that?", opts: ["Raise Kp", "Add Ki", "Add Kd"], ans: 1,
+      msg: "Only the integrator can drive the steady-state error to zero. Kp alone only shrinks it." },
+    { q: "The open-loop test overshoots and rings. Which plant is it, and which term will you probably need?", opts: ["First order, P only", "Second order, some Kd", "First order, Kd only"], ans: 1,
+      msg: "Ringing on its own means a lightly damped second-order plant. D adds damping, which lets you use a larger Kp without too much overshoot." },
+    { q: "You raise Kp to speed up the response, but settling time hardly improves and u sits on the limit. Why?", opts: ["The actuator is saturated, so more gain cannot give more u", "Kp makes the plant slower", "The sensor is too slow"], ans: 0,
+      msg: "Once |u| hits 5, the plant is already getting everything it can. Extra gain only adds windup and overshoot." }
+  ]);
+
+  newGame();
 })();
 
 </script>
