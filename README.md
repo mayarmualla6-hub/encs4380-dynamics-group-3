@@ -96,11 +96,11 @@ Homework 1 showed how slow a sensor or plant is. Homework 2 shows how **feedback
 <!-- screenshot: the HW1 page header with the "Control (HW2) →" tab and the Homework 2 card -->
 
 #### P1
-<!-- screenshot: block diagram + output chart + control-signal chart + metric cards (e.g. after "P only, Kp = 9") -->
+<img width="1600" height="800" alt="image" src="https://github.com/user-attachments/assets/7380ba30-e07c-433c-8a9b-bf7fc2c55021" />
 
 
 #### P2
-<!-- screenshot: τs around 0.3–0.5 s so the cyan and pink curves clearly separate -->
+<img width="1600" height="800" alt="image" src="https://github.com/user-attachments/assets/7c646c72-6684-4f4e-99a4-ce4368bdd406" />
 
 
 #### P3
@@ -111,10 +111,13 @@ Homework 1 showed how slow a sensor or plant is. Homework 2 shows how **feedback
 <!-- screenshot: a round with 100/100 and all three parts ✓ PASS -->
 
 #### My System: Plant Model, Spec & Design Checks
-<!-- screenshot: model + spec + final gains + design checks table -->
+<img width="845" height="497" alt="image" src="https://github.com/user-attachments/assets/9b3db087-af98-463d-8fde-2b0c81ab5d50" />
+<img width="902" height="563" alt="image" src="https://github.com/user-attachments/assets/dac16bd5-5096-47fd-b5f9-ebea72107061" />
 
 #### My System: Simulated Speed Response, PWM Command & Arduino Code
-<!-- screenshot: response chart + PWM chart (within 0–100 %) + code -->
+<img width="1015" height="428" alt="image" src="https://github.com/user-attachments/assets/5c796782-5346-4307-93be-899b98fcefd3" />
+<img width="1138" height="437" alt="image" src="https://github.com/user-attachments/assets/5728a2d9-f348-4204-8cd3-22b478944315" />
+<img width="1096" height="447" alt="image" src="https://github.com/user-attachments/assets/ffdae478-1e55-40bc-aedf-5e1b209d8d73" />
 
 ## 🧪 Homework 2 Validation Results (7/7 Passed)
 
@@ -281,18 +284,3 @@ git clone https://github.com/mayarmualla6-hub/encs4380-dynamics-group-3.git
 cd encs4380-dynamics-group-3
 ```
 
-2. **Open the web page** (`index.html` for Homework 1, `control.html` and `my-system.html` for Homework 2):
-* **Windows:** Double-click the file, or in a terminal run:
-```cmd
-start index.html
-```
-* **macOS:**
-```bash
-open index.html
-```
-* **Linux:**
-```bash
-xdg-open index.html
-```
-
-*An internet connection is needed the first time, to load Chart.js from its CDN.*
