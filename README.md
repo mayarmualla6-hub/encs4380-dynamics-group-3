@@ -36,8 +36,7 @@ Interactive toolkit for exploring the dynamic characteristics of sensors using s
 ## 🎛️ Homework 2: PID Control Toolkit
 
 👉 **Control section (P1–P4):** **[control.html](https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/control.html)**  
-👉 **Our own system:** **[my-system.html](https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/my-system.html)**  
-*(Linked from the landing page through the **Control (HW2) →** tab.)*
+👉 **Our own system:** **[my-system.html](https://mayarmualla6-hub.github.io/encs4380-dynamics-group-3/my-system.html)**
 
 Homework 1 showed how slow a sensor or plant is. Homework 2 shows how **feedback** makes it faster and more accurate. Every plot is computed live in the browser by our own closed-loop simulation, stepped in time with **4th-order Runge–Kutta (RK4)**. Nothing is precomputed and there is no server.
 
