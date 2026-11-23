@@ -111,7 +111,7 @@ textarea{width:100%;min-height:130px;padding:10px;border-radius:7px;border:1px s
         <input type="number" id="msK" step="any">
         <label for="msTau">Time constant τ (s)</label>
         <input type="number" id="msTau" step="any" min="0.001">
-        <p class="hint">These start from <code>js/my-system-data.js</code>. Changing them here only lasts until you reload. Edit that file to make them permanent.</p>
+        <p class="hint">These come from the <code>MY SYSTEM DATA</code> block inside this page. Changing them here only lasts until you reload. Edit that block to make them permanent.</p>
       </div>
       <div class="panel">
         <h3>Source of the numbers</h3>
@@ -133,7 +133,8 @@ textarea{width:100%;min-height:130px;padding:10px;border-radius:7px;border:1px s
           <button class="alt" id="fitUse" disabled>Use the fitted values</button>
         </div>
         <div class="result" id="fitOut"></div>
-        <div class="chart-box sm" style="margin-top:12px"><canvas id="fitChart"></canvas></div>
+        <div class="note" id="fitWaiting" style="display:none;margin-top:12px">⏳ Waiting for our motors. When they arrive we will run <code>step_test_esp32.ino</code>, paste its output here and press <b>Fit K and τ</b>.</div>
+        <div class="chart-box sm" id="fitChartBox" style="margin-top:12px;display:none"><canvas id="fitChart"></canvas></div>
       </div>
     </div>
   </div>
@@ -755,6 +756,7 @@ const MY_SYSTEM = {
   $("msSource").textContent = M.source;
   if (M.isPlaceholder) $("placeholderWarn").style.display = "";
   if (M.isEstimate) $("estimateNote").style.display = "";
+  if (M.isEstimate) $("fitWaiting").style.display = "";
   if (M.zeta) el.zeta.value = M.zeta;
   const zeta = bindSlider("msZeta", 2);
 
@@ -846,6 +848,7 @@ const MY_SYSTEM = {
     $("fitOut").innerHTML = `K = <b>${fmt(K, 4)}</b> ${M.outputUnits}/% &nbsp; τ = <b>${fmt(tau, 4)} s</b> (y₀ = ${fmt(y0, 2)}, y∞ = ${fmt(yss, 2)}, 63.2% reached at t = ${fmt(tc, 4)} s).<br>
       To keep them, put <code>K: ${fmt(K, 4)}, tau: ${fmt(tau, 4)}</code> in <code>js/my-system-data.js</code>.`;
     $("fitUse").disabled = false;
+    $("fitChartBox").style.display = ""; $("fitWaiting").style.display = "none";
     fitChart.data.datasets[0].data = PID.toXY(t, y);
     fitChart.data.datasets[1].data = t.map(ti => ({ x: ti, y: ti < t0 ? y0 : y0 + K * du * (1 - Math.exp(-(ti - t0) / tau)) }));
     fitChart.update("none");
